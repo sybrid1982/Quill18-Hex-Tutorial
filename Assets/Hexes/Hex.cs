@@ -1,0 +1,130 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+
+//Hex class defines the grid position, world space position, size
+//Neighbors, etc of a hex tile, but it is a pure data class that
+//Does not interact with Unity
+
+//It also contains some hex_operators (hex_add, hex_subtract, and hex_multiply)
+//and defines overrides for equality/inequality
+
+public class Hex {
+//Constructor.  We don't need S because S can be derived from Q and R
+    public Hex(HexMap hexMap, int q, int r)
+    {
+        neighbors = new Hex[6];
+        this.hexMap = hexMap;
+
+        this.Q = q;
+        this.R = r;
+        this.S = -(q + r);
+    }
+
+
+    //Q+R+S MUST = 0;
+    //So S = -(Q+R)
+    public readonly int Q,      //Column 
+                        R,      //Row
+                        S;      //Some value
+
+    static readonly float WIDTH_MULTIPLIER = Mathf.Sqrt(3) / 2;
+
+    float radius = 1f;
+
+    Hex[] neighbors;
+    public readonly HexMap hexMap;
+
+    public float HexHeight()
+    {
+        return radius * 2;
+    }
+
+    public float HexWidth()
+    {
+        return WIDTH_MULTIPLIER * HexHeight();
+    }
+
+    public float HexVerticalSpacing()
+    {
+        return HexHeight() * 0.75f;
+    }
+
+    public float HexHorizontalSpacing()
+    {
+        return HexWidth();
+    }
+
+    //Returns world space position of this hex
+    public Vector3 Position()
+    {
+        float horizontal = HexWidth();
+        float vertical = HexHeight() * 0.75f;
+
+        return new Vector3(HexHorizontalSpacing() * (this.Q + this.R * 0.5f), 0, HexVerticalSpacing() * this.R);
+    }
+
+    public Vector3 PositionFromCamera(Vector3 cameraPosition, float numRows, float numColumns)
+    {
+        float mapHeight = numRows * HexVerticalSpacing();
+        float mapWidth = numColumns * HexHorizontalSpacing();
+
+        Vector3 position = Position();
+
+        float howManyWidthsFromCamera = (position.x - cameraPosition.x)/ mapWidth;
+
+        if(Mathf.Abs(howManyWidthsFromCamera) <= 0.5f)
+        {
+            return position;
+        }
+
+        //if we are at 0.6, we want to be at -0.4
+        //if we are at 2.2, we want to be at 0.2
+        //2.6 => -0.4
+        //-0.6 => 0.4
+
+        if (howManyWidthsFromCamera > 0)
+            howManyWidthsFromCamera += 0.5f;
+        else
+            howManyWidthsFromCamera += -0.5f;
+
+        int howManyWidthsToFix = (int)howManyWidthsFromCamera;
+
+        position.x -= howManyWidthsToFix * mapWidth;
+
+        return position;
+    }
+    
+    public static int HexDistance(Hex a, Hex b)
+    {
+        return (Mathf.Abs(a.Q - b.Q) + Mathf.Abs(a.R - b.R) + Mathf.Abs(a.S - b.S))/2;
+    }
+
+    //index 0 = neighbor to right, index moves counterclockwise
+    public void SetNeighbor(Hex neighbor, int index)
+    {
+        neighbors[index] = neighbor;
+    }
+
+    public Hex GetNeighbor(int index)
+    {
+        if (neighbors[index] != null)
+            return neighbors[index];
+        else
+            return null;
+    }
+
+    public List<Hex> GetNeighbors()
+    {
+        List<Hex> neighborList = new List<Hex>();
+        foreach(Hex hex in neighbors)
+        {
+            if (hex != null)
+                neighborList.Add(hex);
+        }
+
+        return neighborList;
+
+    }
+}
