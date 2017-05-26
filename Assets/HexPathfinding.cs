@@ -57,6 +57,7 @@ public class HexPath {
             //if the top of the queue is the end hex, we're done looking
             if (current.data == end)
             {
+                //Debug.Log("HexPathfinding: Valid path found!");
                 hexStack = ReconstructPath(cameFrom, current);
 
                 return;
@@ -96,6 +97,7 @@ public class HexPath {
                 }
             }
             //If we get here then we failed to find a path
+            //Debug.Log("HexPathfinding: No path found!");
         }
     }
 
@@ -136,5 +138,13 @@ public class HexPath {
         }
         else
             return hexStack.Count;
+    }
+
+    public Stack<Hex> ClonePathStack()
+    {
+        var clone = new Stack<Hex>(new Stack<Hex>(hexStack));
+        //Debug.Log("HexStack length: " + hexStack.Count);
+        //Debug.Log("Clone length: " + clone.Count);
+        return clone;
     }
 }

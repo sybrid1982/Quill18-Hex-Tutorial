@@ -64,11 +64,22 @@ public class Pawn {
         return myHex;
     }
 
-    public void SetMoveTarget(Hex hex)
+    public bool SetMoveTarget(Hex hex)
     {
         targetHex = hex;
         //Ok, so, this pawn will need a hexpath made for it then
         myHexPath = new HexPath(myHex.hexMap, myHex, targetHex);
+        //if we've got a valid move path, let the game manager know
+        if (myHexPath != null)
+        {
+            //Debug.Log("Path found!");
+            return true;
+        }
+        else
+        {
+            //Debug.Log("No path found!");
+            return false;
+        }
     }
 
     public void ExecuteMovement()
@@ -112,5 +123,11 @@ public class Pawn {
     {
         Debug.Log("Begin Pawn Turn activated");
         remainingMovement = movement;
+    }
+
+    public Stack<Hex> CopyMovementHexStack()
+    {
+        Stack<Hex> myStack = myHexPath.ClonePathStack();
+        return myStack;
     }
 }

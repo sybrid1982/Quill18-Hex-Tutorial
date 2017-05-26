@@ -70,7 +70,7 @@ public class HexMap : MonoBehaviour {
                 //and to the dictionary
                 hexToHexGOMap.Add(h, hexGO);
                 //Generate Neighbors for the tile
-                
+                GenerateNeighbors(h);
             }
         }
         GeneratePawns();

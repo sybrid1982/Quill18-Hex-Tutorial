@@ -26,6 +26,7 @@ public class HexGraph {
                 nodeCount++;
             }
         }
+        //Debug.Log("Node count: " + nodeCount);
 
         int edgeCount = 0;
         foreach(Hex h in nodes.Keys)
@@ -53,5 +54,7 @@ public class HexGraph {
 
             n.edges = edges.ToArray();
         }
+
+        //Debug.Log("Edge count: " + edgeCount);
     }
 }

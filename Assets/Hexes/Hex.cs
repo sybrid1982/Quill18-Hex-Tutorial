@@ -130,6 +130,32 @@ public class Hex {
 
         return position;
     }
+
+    public Vector3 PositionFromCamera(Vector3 cameraPosition)
+    {
+        float mapHeight = hexMap.NumRows() * HexVerticalSpacing();
+        float mapWidth = hexMap.NumColumns() * HexHorizontalSpacing();
+
+        Vector3 position = Position();
+
+        float howManyWidthsFromCamera = (position.x - cameraPosition.x) / mapWidth;
+
+        if (Mathf.Abs(howManyWidthsFromCamera) <= 0.5f)
+        {
+            return position;
+        }
+
+        if (howManyWidthsFromCamera > 0)
+            howManyWidthsFromCamera += 0.5f;
+        else
+            howManyWidthsFromCamera += -0.5f;
+
+        int howManyWidthsToFix = (int)howManyWidthsFromCamera;
+
+        position.x -= howManyWidthsToFix * mapWidth;
+
+        return position;
+    }
     
     public static int HexDistance(Hex a, Hex b)
     {

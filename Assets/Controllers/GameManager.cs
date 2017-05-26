@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour {
     HexMap hexMap;
     PawnComponent selectedPawnComponent;
     UI_SelectedPawnDisplay selectedPawnDisplay;
+    UI_PathDrawer uiPathDrawer;
     List<Player> players;
     Player activePlayer;
 
@@ -14,6 +15,7 @@ public class GameManager : MonoBehaviour {
 	void Start () {
         selectedPawnComponent = null;
         selectedPawnDisplay = FindObjectOfType<UI_SelectedPawnDisplay>();
+        uiPathDrawer = FindObjectOfType<UI_PathDrawer>();
 	}
 
     public void StartPressed()
@@ -53,7 +55,7 @@ public class GameManager : MonoBehaviour {
 
     public void PawnClicked(PawnComponent pawnComponent)
     {
-        Debug.Log("PawnClicked on GameManager triggered");
+        //Debug.Log("PawnClicked on GameManager triggered");
         if(selectedPawnComponent == pawnComponent)
         {
             ClearSelectedPawn();
@@ -68,7 +70,10 @@ public class GameManager : MonoBehaviour {
     {
         if(selectedPawnComponent != null)
         {
-            selectedPawnComponent.pawn.SetMoveTarget(hex);
+            if (selectedPawnComponent.pawn.SetMoveTarget(hex))
+            {
+                uiPathDrawer.DisplayPathForPawn(selectedPawnComponent.pawn);
+            }
         }
     }
 

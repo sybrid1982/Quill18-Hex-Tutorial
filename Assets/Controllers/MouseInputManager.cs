@@ -34,13 +34,13 @@ public class MouseInputManager : MonoBehaviour {
             {
                 if (hit.collider.GetComponentInParent<PawnComponent>() != null)
                 {
-                    Debug.Log("Clicked a pawn");
+                    //Debug.Log("Clicked a pawn");
                     PawnComponent pawnComponent = hit.collider.GetComponentInParent<PawnComponent>();
                     gameManager.PawnClicked(pawnComponent);
                 }
                 else if (hit.collider.GetComponentInParent<HexComponent>() != null)
                 {
-                    Debug.Log("clicked a hex");
+                    //Debug.Log("clicked a hex");
                     HexComponent hexComponent = hit.collider.GetComponentInParent<HexComponent>();
                     gameManager.HexClicked(hexComponent.hex);
                 }
