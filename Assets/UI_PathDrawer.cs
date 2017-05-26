@@ -10,7 +10,7 @@ public class UI_PathDrawer : MonoBehaviour {
 
     Pawn mySelectedPawn;
 
-    float upwardAdjustOfMarkers = 0.15f;
+    float upwardAdjustOfMarkers = 0.02f;
 
     List<GameObject> pathMarkers;
 
@@ -85,5 +85,8 @@ public class UI_PathDrawer : MonoBehaviour {
         SpriteRenderer sr = newMarker.AddComponent<SpriteRenderer>();
         //Set the sprite on the renderer to the path sprite
         sr.sprite = spriteToMark;
+
+        //Rotate the marker so it is right-way up
+        newMarker.transform.rotation = Quaternion.Euler(90, 0, 0);
     }
 }
