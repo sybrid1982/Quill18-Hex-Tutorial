@@ -158,6 +158,15 @@ public class Hex {
     public void SetTerrain(Terrain terrain)
     {
         this.terrain = terrain;
+        //mountains and water are impassible
+        if (terrain == Terrain.MOUNTAIN || terrain == Terrain.WATER)
+            this.movementCost = 0;
+        //hills and foreest cost double
+        else if (terrain == Terrain.HILLS || terrain == Terrain.FOREST)
+            this.movementCost = 2;
+        //everything else costs 1
+        else
+            this.movementCost = 1;
     }
 
     public Terrain GetTerrain()

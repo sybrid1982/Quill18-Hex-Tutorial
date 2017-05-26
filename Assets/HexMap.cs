@@ -35,8 +35,6 @@ public class HexMap : MonoBehaviour {
         hexToHexGOMap = new Dictionary<Hex, GameObject>();
         pawnToPawnGOMap = new Dictionary<Pawn, GameObject>();
         stringToPrototypeMap = new Dictionary<string, Pawn>();
-
-        GenerateMap();
     }
 
     public int NumRows()
@@ -47,6 +45,11 @@ public class HexMap : MonoBehaviour {
     public int NumColumns()
     {
         return numColumns;
+    }
+
+    public void StartPressed()
+    {
+        GenerateMap();
     }
 
     public void GenerateMap()
@@ -153,15 +156,18 @@ public class HexMap : MonoBehaviour {
     {
         Hex spawnHex = GetRandomHexFromHexMap();
 
-            Pawn p = new Pawn(stringToPrototypeMap["Basic"], spawnHex);
+        GameManager gameManager = FindObjectOfType<GameManager>();
 
-            GameObject pawnGO = (GameObject)Instantiate(PawnPrefab,
+        Pawn p = new Pawn(stringToPrototypeMap["Basic"], spawnHex, gameManager.GetActivePlayer());
+        gameManager.GetActivePlayer().AddPawn(p);
+
+        GameObject pawnGO = (GameObject)Instantiate(PawnPrefab,
                 spawnHex.PositionFromCamera(Camera.main.transform.position, numRows, numColumns),
                 Quaternion.identity,
                 hexToHexGOMap[spawnHex].transform);
 
-            pawnGO.GetComponent<PawnComponent>().pawn = p;
-            pawnToPawnGOMap.Add(p, pawnGO);
+        pawnGO.GetComponent<PawnComponent>().pawn = p;
+        pawnToPawnGOMap.Add(p, pawnGO);
         
     }
 
@@ -187,6 +193,14 @@ public class HexMap : MonoBehaviour {
     {
         GameObject hexGO = hexToHexGOMap[hex];
         return hexGO;
+    }
+    
+    public GameObject GetPawnGOFromPawn(Pawn pawn)
+    {
+        if (pawnToPawnGOMap.ContainsKey(pawn))
+            return pawnToPawnGOMap[pawn];
+        else
+            return null;
     }
 
 

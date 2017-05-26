@@ -9,6 +9,10 @@ public class KeyboardInputManager : MonoBehaviour {
     KeyCode left;
     KeyCode right;
 
+    KeyCode focusOnUnit;
+
+    GameManager gameManager;
+
     bool keysSetInMenu = false;
 
     CameraMotionHandler cameraMotionHandler;
@@ -21,8 +25,9 @@ public class KeyboardInputManager : MonoBehaviour {
             down = KeyCode.S;
             left = KeyCode.A;
             right = KeyCode.D;
+            focusOnUnit = KeyCode.F;
         }
-
+        gameManager = FindObjectOfType<GameManager>();
         cameraMotionHandler = Camera.main.GetComponent<CameraMotionHandler>();
 	}
 	
@@ -48,6 +53,12 @@ public class KeyboardInputManager : MonoBehaviour {
         if (upDown != 0 || leftRight != 0)
         {
             cameraMotionHandler.MoveCamera(upDown, leftRight);
+        }
+        if (Input.GetKey(focusOnUnit))
+        {
+            //Either have the game manager tell the camera to move to a pawn owned by the player
+            //or just find a pawn owned by the active player and move to it
+            //I'm leaning towards the former
         }
 
     }

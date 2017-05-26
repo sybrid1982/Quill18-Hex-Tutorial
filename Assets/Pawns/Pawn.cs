@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 //Pawn is the class for units that move on the game map, like characters
 //or enemies or whatever.  If it can move (and probably later attack), 
@@ -10,10 +11,12 @@ public class Pawn {
     //Constructor for actual game pawns
     //Needs a pawn prototype to clone and a start hex
     //Where it should be initially placed
-    public Pawn(Pawn prototypePawn, Hex startHex)
+    public Pawn(Pawn prototypePawn, Hex startHex, Player owningPlayer)
     {
         this.myHex = startHex;
+        this.pawnType = prototypePawn.pawnType;
         this.movement = prototypePawn.movement;
+        this.owningPlayer = owningPlayer;
     }
 
     //Constructor for pawn prototypes
@@ -36,6 +39,8 @@ public class Pawn {
     int movement;
     //meanwhile remaining movement is how many hexes this unit can move at this moment
     int remainingMovement;
+    //And who owns this pawn
+    Player owningPlayer;
 
     //pawnType is just a way of knowing what kind of pawn a given
     //pawn is
@@ -52,6 +57,7 @@ public class Pawn {
     public void SetMyHex(Hex newHex)
     {
         myHex = newHex;
+        pawnMoveEvent(this, newHex);
     }
     public Hex GetMyHex()
     {
@@ -73,6 +79,7 @@ public class Pawn {
             //get the next hex to move to
             currentGoalHex = myHexPath.GetNextHex();
             //move to that hex
+
             //TODO: IMPLEMENT ABOVE
             //Deplete remaining movement
             remainingMovement--;
@@ -84,8 +91,26 @@ public class Pawn {
         }
     }
 
+    public string GetPawnType()
+    {
+        return pawnType;
+    }
+
+    public string GetRemainingMovement()
+    {
+        string movementString;
+        movementString = remainingMovement + " / " + movement;
+        return movementString;
+    }
+
+    public Player GetPlayer()
+    {
+        return owningPlayer;
+    }
+
     public void BeginPawnTurn()
     {
+        Debug.Log("Begin Pawn Turn activated");
         remainingMovement = movement;
     }
 }
