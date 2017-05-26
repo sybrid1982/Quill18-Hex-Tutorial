@@ -10,6 +10,25 @@ using UnityEngine;
 //It also contains some hex_operators (hex_add, hex_subtract, and hex_multiply)
 //and defines overrides for equality/inequality
 
+public enum Direction {
+    RIGHT,
+    UPPER_RIGHT,
+    UPPER_LEFT,
+    LEFT,
+    LOWER_LEFT,
+    LOWER_RIGHT
+}
+
+public enum Terrain
+{
+    GRASS,
+    MOUNTAIN,
+    HILLS,
+    FOREST,
+    DESERT,
+    WATER
+}
+
 public class Hex {
 //Constructor.  We don't need S because S can be derived from Q and R
     public Hex(HexMap hexMap, int q, int r)
@@ -32,9 +51,25 @@ public class Hex {
     static readonly float WIDTH_MULTIPLIER = Mathf.Sqrt(3) / 2;
 
     float radius = 1f;
+    Terrain terrain;
 
     Hex[] neighbors;
     public readonly HexMap hexMap;
+
+    int movementCost = 1;
+
+    public int MovementCost
+    {
+        get
+        {
+            return movementCost;
+        }
+
+        protected set
+        {
+            movementCost = value;
+        }
+    }
 
     public float HexHeight()
     {
@@ -102,29 +137,31 @@ public class Hex {
     }
 
     //index 0 = neighbor to right, index moves counterclockwise
-    public void SetNeighbor(Hex neighbor, int index)
+    public void SetNeighbor(Hex neighbor, Direction direction)
     {
-        neighbors[index] = neighbor;
+        neighbors[(int)direction] = neighbor;
     }
 
-    public Hex GetNeighbor(int index)
+    public Hex GetNeighbor(Direction direction)
     {
-        if (neighbors[index] != null)
-            return neighbors[index];
+        if (neighbors[(int)direction] != null)
+            return neighbors[(int)direction];
         else
             return null;
     }
 
-    public List<Hex> GetNeighbors()
+    public Hex[] GetNeighbors()
     {
-        List<Hex> neighborList = new List<Hex>();
-        foreach(Hex hex in neighbors)
-        {
-            if (hex != null)
-                neighborList.Add(hex);
-        }
+        return neighbors;
+    }
 
-        return neighborList;
+    public void SetTerrain(Terrain terrain)
+    {
+        this.terrain = terrain;
+    }
 
+    public Terrain GetTerrain()
+    {
+        return terrain;
     }
 }

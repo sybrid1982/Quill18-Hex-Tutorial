@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HexGraph : MonoBehaviour {
+public class HexGraph {
     public Dictionary<Hex, Path_Node<Hex>> nodes;
 
     public HexGraph(HexMap hexMap)
@@ -25,6 +25,33 @@ public class HexGraph : MonoBehaviour {
                 nodes.Add(h, n);
                 nodeCount++;
             }
+        }
+
+        int edgeCount = 0;
+        foreach(Hex h in nodes.Keys)
+        {
+            Path_Node<Hex> n = nodes[h];
+            //get a list of neighbors for the hexes
+            //if a neighbor is walkable, create an edge to the relevant node
+
+            List<Path_Edge<Hex>> edges = new List<Path_Edge<Hex>>();
+            Hex[] neighbors = h.GetNeighbors();
+
+            for (int i = 0; i < neighbors.Length; i++)
+            {
+                if(neighbors[i]!=null && neighbors[i].MovementCost > 0)
+                {
+                    Path_Edge<Hex> e = new Path_Edge<Hex>();
+                    e.cost = neighbors[i].MovementCost;
+                    e.node = nodes[neighbors[i]];
+
+                    //add the edge to the temporary and growable list
+                    edges.Add(e);
+                    edgeCount++;
+                }
+            }
+
+            n.edges = edges.ToArray();
         }
     }
 }
