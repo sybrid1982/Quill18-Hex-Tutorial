@@ -13,26 +13,21 @@ public class UI_SelectedPawnDisplay : MonoBehaviour {
 
     Pawn currentSelectedPawn;
 
-    void Start()
-    {
-
-    }
-
     public void OnPawnSelected(Pawn newPawn)
     {
-        //if we pass null, clear the texts
+        //if the new pawn isn't null, set the texts, otherwise, clear them
         currentSelectedPawn = newPawn;
-        if (newPawn == null)
-        {
-            pawnName.text = "";
-            pawnMovement.text = "";
-            pawnOwner.text = "";
-        }
-        else
+        if (newPawn != null)
         {
             pawnName.text = currentSelectedPawn.GetPawnType();
             pawnMovement.text = currentSelectedPawn.GetRemainingMovement();
             pawnOwner.text = currentSelectedPawn.GetPlayer().PlayerName;
+        }
+        else
+        {
+            pawnName.text = "";
+            pawnMovement.text = "";
+            pawnOwner.text = "";
         }       
     }
 

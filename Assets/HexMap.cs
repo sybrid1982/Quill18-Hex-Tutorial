@@ -57,24 +57,34 @@ public class HexMap : MonoBehaviour {
         for (int column = 0; column < numColumns; column++)
         {
             //add a new column
-            hexMapAxial.Add( new List<Hex>() );
-            for (int row = 0; row < numRows; row++)
-            {
-                Hex h;
-                GameObject hexGO;
-                GenerateHex(column, row, out h, out hexGO);
-                SetTerrainOnHex(hexGO);
-
-                //add to the new column a new row member
-                hexMapAxial[column].Add(h);
-                //and to the dictionary
-                hexToHexGOMap.Add(h, hexGO);
-                //Generate Neighbors for the tile
-                GenerateNeighbors(h);
-            }
+            hexMapAxial.Add(new List<Hex>());
+            GenerateColumn(column);
         }
-        GeneratePawns();
+        GeneratePawnPrototypes();
         GenerateStartPawn();
+    }
+
+    private void GenerateColumn(int column)
+    {
+        for (int row = 0; row < numRows; row++)
+        {
+            GenerateHex(column, row);
+        }
+    }
+
+    private void GenerateHex(int column, int row)
+    {
+        Hex h;
+        GameObject hexGO;
+        GenerateHexGO(column, row, out h, out hexGO);
+        SetTerrainOnHex(hexGO);
+
+        //add to the new column a new row member
+        hexMapAxial[column].Add(h);
+        //and to the dictionary
+        hexToHexGOMap.Add(h, hexGO);
+        //Generate Neighbors for the tile
+        GenerateNeighbors(h);
     }
 
     private void SetTerrainOnHex(GameObject hexGO)
@@ -85,7 +95,7 @@ public class HexMap : MonoBehaviour {
         hexGO.GetComponent<HexComponent>().hex.SetTerrain((Terrain)terrainIndex);
     }
 
-    private void GenerateHex(int column, int row, out Hex h, out GameObject hexGO)
+    private void GenerateHexGO(int column, int row, out Hex h, out GameObject hexGO)
     {
         h = new Hex(this, column, row);
         hexGO = (GameObject)Instantiate(HexPrefab,
@@ -98,55 +108,67 @@ public class HexMap : MonoBehaviour {
         hexGO.name = ("Hex: " + column + ", " + row);
     }
 
+    void GenerateNeighbor(Hex h, Vector2 neighborToCheck, int directionIndex)
+    {
+        Hex hexToCheck = GetHexFromHexMap(neighborToCheck);
+        if (hexToCheck != null)
+        {
+            Direction directionOfNeighbor = (Direction)directionIndex;
+            h.SetNeighbor(hexToCheck, directionOfNeighbor);
+            hexToCheck.SetNeighbor(h, ReverseDirection(directionOfNeighbor));
+        }
+    }
+
+    Direction ReverseDirection(Direction directionToReverse)
+    {
+        int directionIndex = (int)(directionToReverse);
+        if (directionIndex >= 3)
+        {
+            return (Direction)(directionIndex - 3);
+        }
+        else
+        {
+            return (Direction)(directionIndex + 3);
+        }
+    }
+
     void GenerateNeighbors(Hex h)
     {
         //When a new hex is created there are three easy places to check for neighbors
         //To the left of the hex, the bottom-left of the hex, and bottom-right
         //neighbor to the left
-        Hex leftH = GetHexFromHexMap(h.Q, h.R - 1);
-        if (leftH != null)
+        Vector2[] potentialNeighborCoords = {   new Vector2 (h.Q, h.R - 1),          //left
+                                                new Vector2 (h.Q - 1, h.R),         //lower left
+                                                new Vector2 (h.Q - 1, h.R + 1),};    //lower right
+        for (int i = 0; i < 3; i++)
         {
-            //In this case there are two hexes that need to know about
-            //their neighbors
-            h.SetNeighbor(leftH, Direction.LEFT);
-            leftH.SetNeighbor(h, Direction.RIGHT);
+            GenerateNeighbor(h, potentialNeighborCoords[i], i+3);
         }
-        Hex lowerLeftH = GetHexFromHexMap(h.Q - 1, h.R);
-        if(lowerLeftH != null)
+        //HOWEVER, if this is the last tile in a row, there are two
+        //other neighbors to consider to wrap the map
+        if(h.R == numColumns - 1)
         {
-            h.SetNeighbor(lowerLeftH, Direction.LOWER_LEFT);
-            lowerLeftH.SetNeighbor(h, Direction.UPPER_RIGHT);
+            GenerateWrapNeighbors(h);
         }
-        Hex lowerRightH = GetHexFromHexMap(h.Q - 1, h.R + 1);
-        if(lowerRightH != null)
+    }
+
+    private void GenerateWrapNeighbors(Hex h)
+    {
+        Hex rightH = GetHexFromHexMap(0, h.R);
+        if (rightH != null)
+        {
+            h.SetNeighbor(rightH, Direction.RIGHT);
+            rightH.SetNeighbor(h, Direction.LEFT);
+        }
+        Hex lowerRightH = GetHexFromHexMap(0, h.R - 1);
+        if (lowerRightH != null)
         {
             h.SetNeighbor(lowerRightH, Direction.LOWER_RIGHT);
             lowerRightH.SetNeighbor(h, Direction.UPPER_LEFT);
         }
-        //HOWEVER, if this is the last tile in a row, there are two
-        //other neighbors to consider
-        //That is the neighbors to the right and lower right,
-        //which are the tiles at the start of the row and the one at the
-        //start of the row in the previous column
-        //All tiles in the last column are the last tile in the row
-        if(h.R == numColumns - 1)
-        {
-            Hex rightH = GetHexFromHexMap(0, h.R);
-            if(rightH != null)
-            {
-                h.SetNeighbor(rightH, Direction.RIGHT);
-                rightH.SetNeighbor(h, Direction.LEFT);
-            }
-            lowerRightH = GetHexFromHexMap(0, h.R - 1);
-            if(lowerRightH != null)
-            {
-                h.SetNeighbor(lowerRightH, Direction.LOWER_RIGHT);
-                lowerRightH.SetNeighbor(h, Direction.UPPER_LEFT);
-            }
-        }
     }
 
-    void GeneratePawns()
+    void GeneratePawnPrototypes()
     {
         Pawn basic = new Pawn("Basic", 4);
         stringToPrototypeMap.Add("Basic", basic);
@@ -181,6 +203,16 @@ public class HexMap : MonoBehaviour {
             return null;
     }
 
+    public Hex GetHexFromHexMap(Vector2 coords)
+    {
+        if (coords.x >= 0 && coords.y >= 0 && coords.x < numColumns && coords.y < numRows)
+        {
+            return hexMapAxial[(int)coords.x][(int)coords.y];
+        }
+        else
+            return null;
+    }
+
     Hex GetRandomHexFromHexMap()
     {
         int q = Random.Range(0, numColumns);
@@ -202,12 +234,4 @@ public class HexMap : MonoBehaviour {
         else
             return null;
     }
-
-
-
-    void Update()
-    {
-
-    }
-
 }
