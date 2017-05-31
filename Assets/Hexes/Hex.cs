@@ -58,6 +58,9 @@ public class Hex {
 
     int movementCost = 1;
 
+    public float Elevation;
+    public float Moisture;
+
     public int MovementCost
     {
         get
@@ -133,7 +136,6 @@ public class Hex {
 
     public Vector3 PositionFromCamera(Vector3 cameraPosition)
     {
-        float mapHeight = hexMap.NumRows() * HexVerticalSpacing();
         float mapWidth = hexMap.NumColumns() * HexHorizontalSpacing();
 
         Vector3 position = Position();
@@ -198,5 +200,18 @@ public class Hex {
     public Terrain GetTerrain()
     {
         return terrain;
+    }
+
+    public static float Distance(Hex a, Hex b)
+    {
+        HexMap hexMap = a.hexMap;
+
+        int dQ = Mathf.Abs(a.Q - b.Q);
+        if (dQ > hexMap.NumColumns() / 2)
+            dQ = hexMap.NumColumns() - dQ;
+
+        return Mathf.Max(dQ,
+                        Mathf.Abs(a.R - b.R),
+                        Mathf.Abs(a.S - b.S));
     }
 }

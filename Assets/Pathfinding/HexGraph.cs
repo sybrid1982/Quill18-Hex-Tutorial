@@ -33,7 +33,7 @@ public class HexGraph {
     {
         for (int r = 0; r < hexMap.NumRows(); r++)
         {
-            Hex h = hexMap.GetHexFromHexMap(q, r);
+            Hex h = hexMap.GetHexAt(q, r);
             Path_Node<Hex> n = new Path_Node<Hex>();
             n.data = h;
             nodes.Add(h, n);

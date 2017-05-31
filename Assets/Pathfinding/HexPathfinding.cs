@@ -121,6 +121,7 @@ public class HexPath {
             if (currentHex != null)
                 totalPath.Push(currentHex.data);
         }
+        totalPath.Pop();
         return totalPath;
     }
 
@@ -134,7 +135,7 @@ public class HexPath {
     
     public Hex GetNextHex()
     {
-        if (hexStack == null)
+        if (hexStack == null && hexStack.Count > 0)
             return null;
         else
             return hexStack.Pop();

@@ -6,36 +6,36 @@ public class HexMap : MonoBehaviour {
 
     [SerializeField]
     GameObject HexPrefab;
-    [SerializeField]
-    GameObject PawnPrefab;
 
     [SerializeField]
     int numRows = 20;
     [SerializeField]
     int numColumns = 40;
 
-    //TODO: Create a custom inspector so that the material slots are labeled
-    //in unity with the actual terrain types instead of "element0" for
-    //usability
-    [SerializeField]
-    Material[] hexMaterials;
+    public float HeightMountain = 1.5f;
+    public float HeightHill = 1.0f;
+    public float HeightFlat = 0.0f;
 
-    List<List<Hex>> hexMapAxial;
+    public float MoistureRainforest = 1f;
+    public float MoistureForest = .75f;
+    public float MoistureGrassland = 0.5f;
+    public float MoisturePlains = 0.25f;
 
+    public Material MatGrasslands;
+    public Material MatPlains;
+    public Material MatDesert;
+    public Material MatOcean;
+    public Material MatMountains;
+
+    public Mesh MeshWater;
+    public Mesh MeshFlat;
+    public Mesh MeshHill;
+    public Mesh MeshMountain;
+
+    private Hex[,] hexes;
     Dictionary<Hex, GameObject> hexToHexGOMap;
-    Dictionary<Pawn, GameObject> pawnToPawnGOMap;
-
-    Dictionary<string, Pawn> stringToPrototypeMap;
-
-    public HexGraph hexGraph;
     
-	// Use this for initialization
-	void Start () {
-        hexMapAxial = new List<List<Hex>>();
-        hexToHexGOMap = new Dictionary<Hex, GameObject>();
-        pawnToPawnGOMap = new Dictionary<Pawn, GameObject>();
-        stringToPrototypeMap = new Dictionary<string, Pawn>();
-    }
+    public HexGraph hexGraph;
 
     public int NumRows()
     {
@@ -49,19 +49,17 @@ public class HexMap : MonoBehaviour {
 
     public void StartPressed()
     {
+        hexToHexGOMap = new Dictionary<Hex, GameObject>();
         GenerateMap();
     }
 
-    public void GenerateMap()
+    virtual public void GenerateMap()
     {
+        hexes = new Hex[NumColumns(), NumRows()];
         for (int column = 0; column < numColumns; column++)
         {
-            //add a new column
-            hexMapAxial.Add(new List<Hex>());
             GenerateColumn(column);
         }
-        GeneratePawnPrototypes();
-        GenerateStartPawn();
     }
 
     private void GenerateColumn(int column)
@@ -77,22 +75,13 @@ public class HexMap : MonoBehaviour {
         Hex h;
         GameObject hexGO;
         GenerateHexGO(column, row, out h, out hexGO);
-        SetTerrainOnHex(hexGO);
 
-        //add to the new column a new row member
-        hexMapAxial[column].Add(h);
+        h.Elevation = -0.5f;
+        hexes[column, row] = h;
         //and to the dictionary
         hexToHexGOMap.Add(h, hexGO);
         //Generate Neighbors for the tile
         GenerateNeighbors(h);
-    }
-
-    private void SetTerrainOnHex(GameObject hexGO)
-    {
-        MeshRenderer meshRenderer = hexGO.GetComponentInChildren<MeshRenderer>();
-        int terrainIndex = Random.Range(0, hexMaterials.Length);
-        meshRenderer.material = hexMaterials[terrainIndex];
-        hexGO.GetComponent<HexComponent>().hex.SetTerrain((Terrain)terrainIndex);
     }
 
     private void GenerateHexGO(int column, int row, out Hex h, out GameObject hexGO)
@@ -110,7 +99,7 @@ public class HexMap : MonoBehaviour {
 
     void GenerateNeighbor(Hex h, Vector2 neighborToCheck, int directionIndex)
     {
-        Hex hexToCheck = GetHexFromHexMap(neighborToCheck);
+        Hex hexToCheck = GetHexAt(neighborToCheck);
         if (hexToCheck != null)
         {
             Direction directionOfNeighbor = (Direction)directionIndex;
@@ -154,13 +143,13 @@ public class HexMap : MonoBehaviour {
 
     private void GenerateWrapNeighbors(Hex h)
     {
-        Hex rightH = GetHexFromHexMap(0, h.R);
+        Hex rightH = GetHexAt(0, h.R);
         if (rightH != null)
         {
             h.SetNeighbor(rightH, Direction.RIGHT);
             rightH.SetNeighbor(h, Direction.LEFT);
         }
-        Hex lowerRightH = GetHexFromHexMap(0, h.R - 1);
+        Hex lowerRightH = GetHexAt(0, h.R - 1);
         if (lowerRightH != null)
         {
             h.SetNeighbor(lowerRightH, Direction.LOWER_RIGHT);
@@ -168,57 +157,45 @@ public class HexMap : MonoBehaviour {
         }
     }
 
-    void GeneratePawnPrototypes()
-    {
-        Pawn basic = new Pawn("Basic", 4);
-        stringToPrototypeMap.Add("Basic", basic);
-    }
-
-    void GenerateStartPawn()
-    {
-        Hex spawnHex = GetRandomHexFromHexMap();
-
-        GameManager gameManager = FindObjectOfType<GameManager>();
-
-        Pawn p = new Pawn(stringToPrototypeMap["Basic"], spawnHex, gameManager.GetActivePlayer());
-        gameManager.GetActivePlayer().AddPawn(p);
-
-        GameObject pawnGO = (GameObject)Instantiate(PawnPrefab,
-                spawnHex.PositionFromCamera(Camera.main.transform.position, numRows, numColumns),
-                Quaternion.identity,
-                hexToHexGOMap[spawnHex].transform);
-
-        pawnGO.GetComponent<PawnComponent>().pawn = p;
-        pawnToPawnGOMap.Add(p, pawnGO);
-        
-    }
 
     //Returns the hex at coordinates Q, R
     //If Q,R is out of the map bounds, returns null
-    public Hex GetHexFromHexMap(int Q, int R)
+    //if Q is greater than the number of columns or less than zero,
+    //then we can return what hex that would be from wrapping
+    //IE: if we have 30 columns and ask for 32, 5 return 2, 5
+    public Hex GetHexAt(int Q, int R)
     {
-        if (Q >= 0 && R >= 0 && Q < numColumns && R < numRows)
-            return hexMapAxial[Q][R];
-        else
-            return null;
-    }
-
-    public Hex GetHexFromHexMap(Vector2 coords)
-    {
-        if (coords.x >= 0 && coords.y >= 0 && coords.x < numColumns && coords.y < numRows)
+        if(hexes == null)
         {
-            return hexMapAxial[(int)coords.x][(int)coords.y];
+            throw new UnityException("Hexes array not yet instantiated, you done goofed!");
         }
-        else
+
+        Q = Q % numColumns;
+        if (Q < 0)
+            Q += numColumns;
+
+        try
+        {
+            return hexes[Q, R];
+        } catch
+        {
             return null;
+        }
     }
 
-    Hex GetRandomHexFromHexMap()
+    public Hex GetHexAt(Vector2 coords)
+    {
+
+        return GetHexAt((int)coords.x, (int)coords.y);
+
+    }
+
+    public Hex GetRandomHexFromHexMap()
     {
         int q = Random.Range(0, numColumns);
         int r = Random.Range(0, numRows);
 
-        return GetHexFromHexMap(q, r);
+        return GetHexAt(q, r);
     }
 
     public GameObject GetHexGOFromHex(Hex hex)
@@ -227,11 +204,72 @@ public class HexMap : MonoBehaviour {
         return hexGO;
     }
     
-    public GameObject GetPawnGOFromPawn(Pawn pawn)
+    public void UpdateHexVisuals()
     {
-        if (pawnToPawnGOMap.ContainsKey(pawn))
-            return pawnToPawnGOMap[pawn];
-        else
-            return null;
+        for (int column = 0; column < NumColumns(); column++)
+        {
+            for (int row = 0; row < NumRows(); row++)
+            {
+                Hex h = hexes[column, row];
+                GameObject hexGO = hexToHexGOMap[h];
+
+                MeshRenderer mr = hexGO.GetComponentInChildren<MeshRenderer>();
+                MeshFilter mf = hexGO.GetComponentInChildren<MeshFilter>();
+                
+
+                if (h.Elevation >= HeightMountain)
+                {
+                    mf.mesh = MeshMountain;
+                    mr.material = MatMountains;
+                }
+                else if (h.Elevation >= HeightHill)
+                {
+                    mf.mesh = MeshHill;
+                }
+                else if (h.Elevation >= HeightFlat)
+                {
+                    mf.mesh = MeshFlat;
+                }
+                else
+                {
+                    mr.material = MatOcean;
+                }
+
+                if (h.Elevation >= HeightMountain)
+                    mr.material = MatMountains;
+                else if (h.Elevation < HeightFlat)
+                    mr.material = MatOcean;
+                else if (h.Moisture >= MoistureRainforest)
+                {
+                    mr.material = MatGrasslands;
+                }
+                else if (h.Moisture >= MoistureForest)
+                {
+                    mr.material = MatGrasslands;
+                }
+                else if (h.Moisture >= MoistureGrassland)
+                {
+                    mr.material = MatGrasslands;
+                }
+                else
+                {
+                    mr.material = MatDesert;
+                }
+
+            }
+        }
+    }
+
+    public Hex[] GetHexesWithRadiusOf(Hex centerHex, int radius)
+    {
+        List<Hex> results = new List<Hex>();
+        for (int dx = -radius; dx < radius; dx++)
+        {
+            for (int dy = Mathf.Max(-radius, -dx - radius); dy < Mathf.Min(radius, -dx + radius); dy++)
+            {
+                results.Add(GetHexAt(centerHex.Q + dx, centerHex.R + dy));
+            }
+        }
+        return results.ToArray();
     }
 }

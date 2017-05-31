@@ -31,10 +31,12 @@ public class Pawn {
     Hex myHex;
     //targetHex is the final stop for a pathfinding run
     Hex targetHex;
+    Hex tempHex;
     //currentGoalHex is the next hex the pawn wants to move to
     Hex currentGoalHex;
     //similarly this is for pathfinding
     HexPath myHexPath;
+    HexPath tempHexPath;
     //movement is how many hexes this unit can move in a turn
     int movement;
     //meanwhile remaining movement is how many hexes this unit can move at this moment
@@ -57,7 +59,7 @@ public class Pawn {
     public void SetMyHex(Hex newHex)
     {
         myHex = newHex;
-        pawnMoveEvent(this, newHex);
+        //pawnMoveEvent(this, newHex);
     }
     public Hex GetMyHex()
     {
@@ -72,33 +74,46 @@ public class Pawn {
         //if we've got a valid move path, let the game manager know
         if (myHexPath != null)
         {
-            //Debug.Log("Path found!");
             return true;
         }
         else
         {
-            //Debug.Log("No path found!");
+            return false;
+        }
+    }
+
+    public void SetTempPathToCurrentPath()
+    {
+        targetHex = tempHex;
+        myHexPath = new HexPath(myHex.hexMap, myHex, targetHex);
+    }
+
+    public bool PathfindToTile(Hex hex)
+    {
+        tempHex = hex;
+        tempHexPath = new global::HexPath(myHex.hexMap, myHex, tempHex);
+        //if this worked, let the game manager know to draw it
+        if (myHexPath != null)
+        {
+            return true;
+        } else
+        {
             return false;
         }
     }
 
     public void ExecuteMovement()
     {
-        //while we have movement left this turn
-        while(remainingMovement > 0)
+        //while we have movement left this turn OR there are hexes left to move to
+        while(remainingMovement > 0 || myHexPath.Length() > 0)
         {
             //get the next hex to move to
             currentGoalHex = myHexPath.GetNextHex();
             //move to that hex
-
+            SetMyHex(currentGoalHex);
             //TODO: IMPLEMENT ABOVE
             //Deplete remaining movement
             remainingMovement--;
-            //Check if we've arrived
-            if(currentGoalHex == targetHex)
-            {
-                continue;
-            }
         }
     }
 
@@ -107,11 +122,16 @@ public class Pawn {
         return pawnType;
     }
 
-    public string GetRemainingMovement()
+    public string GetRemainingMovementString()
     {
         string movementString;
         movementString = remainingMovement + " / " + movement;
         return movementString;
+    }
+
+    public int GetRemainingMovement()
+    {
+        return remainingMovement;
     }
 
     public Player GetPlayer()
@@ -125,9 +145,20 @@ public class Pawn {
         remainingMovement = movement;
     }
 
-    public Stack<Hex> CopyMovementHexStack()
+
+
+    public Stack<Hex> CopyMovementHexStack(bool wantTempPath)
     {
-        Stack<Hex> myStack = myHexPath.ClonePathStack();
+        Stack<Hex> myStack;
+        if (wantTempPath)
+        {
+            myStack = tempHexPath.ClonePathStack();
+        }
+        else
+        {
+            myStack = myHexPath.ClonePathStack();
+        }
+
         return myStack;
     }
 }

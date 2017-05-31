@@ -61,4 +61,17 @@ public class Player  {
     {
         myPawns.Add(p);
     }
+
+    public Pawn GetPawnWithRemainingMove()
+    {
+        foreach (Pawn p in myPawns)
+        {
+            if (p.GetRemainingMovement() > 0)
+            {
+                return p;
+            }
+        }
+        //null means there are no pawns with remaining movement
+        return null;
+    }
 }

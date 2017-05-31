@@ -34,7 +34,7 @@ public class UI_PathDrawer : MonoBehaviour {
         }
     }
 
-    public void DisplayPathForPawn(Pawn selectedPawn)
+    public void DisplayPathForPawn(Pawn selectedPawn, bool wantTempPath = false)
     {
         mySelectedPawn = selectedPawn;
         //Debug.Log("Asked to draw a path");
@@ -49,7 +49,7 @@ public class UI_PathDrawer : MonoBehaviour {
         //sprite centered on that hex
         //otherwise put a target sprite centered on that
         //hex
-        Stack<Hex> hexStack = selectedPawn.CopyMovementHexStack();
+        Stack<Hex> hexStack = selectedPawn.CopyMovementHexStack(wantTempPath);
 
         //if the stack is empty, don't do anything
         if (hexStack.Count == 0)
@@ -57,6 +57,8 @@ public class UI_PathDrawer : MonoBehaviour {
             //Debug.Log("Stack was empty");
             return;
         }
+
+        Debug.Log("copied hexstack contains items");
 
 
          while(hexStack.Count > 1)

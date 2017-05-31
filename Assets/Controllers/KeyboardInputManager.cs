@@ -54,11 +54,24 @@ public class KeyboardInputManager : MonoBehaviour {
         {
             cameraMotionHandler.MoveCamera(upDown, leftRight);
         }
-        if (Input.GetKey(focusOnUnit))
+        if (Input.GetKeyDown(focusOnUnit))
         {
             //Either have the game manager tell the camera to move to a pawn owned by the player
             //or just find a pawn owned by the active player and move to it
             //I'm leaning towards the former
+            Debug.Log("F pressed");
+            Pawn cameraPawn = gameManager.GetFirstPawnForActivePlayer();
+            if(cameraPawn != null)
+            {
+                //Get the gameManager to give us a position for the pawn
+                Vector3 pawnPosition = gameManager.GetPawnPosition(cameraPawn);
+                //send that to the camera
+                cameraMotionHandler.MoveToPosition(pawnPosition);
+            }
+            else
+            {
+                Debug.Log("player has no pawns left with movement");
+            }
         }
 
     }

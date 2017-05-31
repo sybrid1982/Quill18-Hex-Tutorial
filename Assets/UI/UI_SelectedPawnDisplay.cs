@@ -20,7 +20,7 @@ public class UI_SelectedPawnDisplay : MonoBehaviour {
         if (newPawn != null)
         {
             pawnName.text = currentSelectedPawn.GetPawnType();
-            pawnMovement.text = currentSelectedPawn.GetRemainingMovement();
+            pawnMovement.text = currentSelectedPawn.GetRemainingMovementString();
             pawnOwner.text = currentSelectedPawn.GetPlayer().PlayerName;
         }
         else
@@ -36,7 +36,7 @@ public class UI_SelectedPawnDisplay : MonoBehaviour {
         if (currentSelectedPawn != null)
         {
             pawnName.text = currentSelectedPawn.GetPawnType();
-            pawnMovement.text = currentSelectedPawn.GetRemainingMovement();
+            pawnMovement.text = currentSelectedPawn.GetRemainingMovementString();
         }
     }
 }

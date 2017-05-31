@@ -40,6 +40,14 @@ public class CameraMotionHandler : MonoBehaviour {
         //TODO:  Move Camera to Hex
     }
 
+    public void MoveToPosition(Vector3 position)
+    {
+        Debug.Log("Asked to move to a new position");
+        position.y = this.transform.position.y;
+        position.z += -5;
+        this.transform.position = position;
+    }
+
     void CheckIfCameraMoved()
     {
         if(oldPosition != this.transform.position)
@@ -61,7 +69,7 @@ public class CameraMotionHandler : MonoBehaviour {
         float newX = transform.position.x + (leftRight * Time.deltaTime * cameraMoveSpeed);
         float newZ = transform.position.z + (upDown * Time.deltaTime * cameraMoveSpeed);
 
-        newZ = Mathf.Clamp(newZ, 0, maxCameraUp);
+        newZ = Mathf.Clamp(newZ, -10, maxCameraUp);
         //TODO:  if you get too far to the right, reset the camera's position to 0 on the x axis
 
         transform.position = new Vector3(newX, transform.position.y, newZ);
