@@ -33,6 +33,8 @@ public class HexMap : MonoBehaviour {
     public Mesh MeshMountain;
 
     private Hex[,] hexes;
+    private List<Hex> walkableHexes;
+
     Dictionary<Hex, GameObject> hexToHexGOMap;
     
     public HexGraph hexGraph;
@@ -50,6 +52,7 @@ public class HexMap : MonoBehaviour {
     public void StartPressed()
     {
         hexToHexGOMap = new Dictionary<Hex, GameObject>();
+        walkableHexes = new List<Hex>();
         GenerateMap();
     }
 
@@ -190,12 +193,11 @@ public class HexMap : MonoBehaviour {
 
     }
 
-    public Hex GetRandomHexFromHexMap()
+    public Hex GetRandomWalkableHexFromHexMap()
     {
-        int q = Random.Range(0, numColumns);
-        int r = Random.Range(0, numRows);
+        int hexIndex = Random.Range(0, walkableHexes.Count);
 
-        return GetHexAt(q, r);
+        return walkableHexes[hexIndex];
     }
 
     public GameObject GetHexGOFromHex(Hex hex)
@@ -221,14 +223,18 @@ public class HexMap : MonoBehaviour {
                 {
                     mf.mesh = MeshMountain;
                     mr.material = MatMountains;
+                    h.SetTerrain(Terrain.MOUNTAIN);
                 }
                 else if (h.Elevation >= HeightHill)
                 {
                     mf.mesh = MeshHill;
+                    walkableHexes.Add(h);
+                    h.SetTerrain(Terrain.HILLS);
                 }
                 else if (h.Elevation >= HeightFlat)
                 {
                     mf.mesh = MeshFlat;
+                    walkableHexes.Add(h);
                 }
                 else
                 {

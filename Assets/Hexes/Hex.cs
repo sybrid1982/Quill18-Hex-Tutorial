@@ -24,7 +24,6 @@ public enum Terrain
     GRASS,
     MOUNTAIN,
     HILLS,
-    FOREST,
     DESERT,
     WATER
 }
@@ -61,11 +60,40 @@ public class Hex {
     public float Elevation;
     public float Moisture;
 
+    private Feature feature;
+
     public int MovementCost
     {
         get
         {
-            return movementCost;
+            int mc = 0;
+            switch (terrain)
+            {
+                case Terrain.DESERT:
+                case Terrain.GRASS:
+                    mc = 1;
+                    break;
+                case Terrain.HILLS:
+                    mc = 2;
+                    break;
+                case Terrain.MOUNTAIN:
+                case Terrain.WATER:
+                    mc = 0;
+                    break;
+                default:
+                    Debug.Log("Unknown terrain type");
+                    break;
+            }
+            if(feature != null)
+            {
+                switch (feature.FeatureType)
+                {
+                    case FeatureTypes.FOREST:
+                        mc++;
+                        break;
+                }
+            }
+            return mc;
         }
 
         protected set
@@ -186,15 +214,6 @@ public class Hex {
     public void SetTerrain(Terrain terrain)
     {
         this.terrain = terrain;
-        //mountains and water are impassible
-        if (terrain == Terrain.MOUNTAIN || terrain == Terrain.WATER)
-            this.movementCost = 0;
-        //hills and foreest cost double
-        else if (terrain == Terrain.HILLS || terrain == Terrain.FOREST)
-            this.movementCost = 2;
-        //everything else costs 1
-        else
-            this.movementCost = 1;
     }
 
     public Terrain GetTerrain()

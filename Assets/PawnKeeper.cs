@@ -35,7 +35,7 @@ public class PawnKeeper : MonoBehaviour {
     public void GenerateStartPawn(Player player)
     {
         Debug.Log("GenerateStartPawn called");
-        Hex spawnHex = hexMap.GetRandomHexFromHexMap();
+        Hex spawnHex = hexMap.GetRandomWalkableHexFromHexMap();
 
         GameManager gameManager = FindObjectOfType<GameManager>();
 

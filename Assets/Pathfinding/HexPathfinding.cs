@@ -52,7 +52,7 @@ public class HexPath {
             if (current.data == end)
             {
                 hexStack = ReconstructPath(cameFrom, current);
-
+                Debug.Log("Found path to tile");
                 return;
             }
 
@@ -109,6 +109,7 @@ public class HexPath {
                 openSet.Enqueue(e.node, fScore[e.node]);
             }
         }
+        Debug.Log("Failed to find path to hex");
     }
 
     Stack<Hex> ReconstructPath(Dictionary<Path_Node<Hex>, Path_Node<Hex>> cameFrom, Path_Node<Hex> currentHex)

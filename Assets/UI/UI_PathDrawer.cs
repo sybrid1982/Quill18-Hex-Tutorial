@@ -11,6 +11,7 @@ public class UI_PathDrawer : MonoBehaviour {
     Pawn mySelectedPawn;
 
     float upwardAdjustOfMarkers = 0.02f;
+    float downwardAdjustOfMarkers = -1.6f;
 
     List<GameObject> pathMarkers;
 
@@ -79,7 +80,7 @@ public class UI_PathDrawer : MonoBehaviour {
     {
         GameObject newMarker = new GameObject();
         Vector3 markerPosition = hexToMark.PositionFromCamera(Camera.main.transform.position);
-        markerPosition.y += upwardAdjustOfMarkers;
+        markerPosition.y += downwardAdjustOfMarkers;
         newMarker.transform.position = markerPosition;
         //newMarker.transform.SetParent()
         pathMarkers.Add(newMarker);

@@ -25,8 +25,9 @@ public class HexGraph {
         int nodeCount = 0;
         for (int q = 0; q < hexMap.NumColumns(); q++)
         {
-            nodeCount += CycleThroughRowToMakeNodes(hexMap, nodeCount, q);
+            nodeCount = CycleThroughRowToMakeNodes(hexMap, nodeCount, q);
         }
+        Debug.Log("Found this many nodes: " + nodeCount);
     }
 
     private int CycleThroughRowToMakeNodes(HexMap hexMap, int nodeCount, int q)
@@ -39,7 +40,7 @@ public class HexGraph {
             nodes.Add(h, n);
             nodeCount++;
         }
-
+        
         return nodeCount;
     }
 
@@ -55,10 +56,11 @@ public class HexGraph {
             List<Path_Edge<Hex>> edges = new List<Path_Edge<Hex>>();
             Hex[] neighbors = h.GetNeighbors();
 
-            edgeCount += CreateEdgesFromNeighbors(edgeCount, edges, neighbors);
+            edgeCount = CreateEdgesFromNeighbors(edgeCount, edges, neighbors);
 
             n.edges = edges.ToArray();
         }
+
     }
 
     private int CreateEdgesFromNeighbors(int edgeCount, List<Path_Edge<Hex>> edges, Hex[] neighbors)
