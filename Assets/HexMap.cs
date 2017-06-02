@@ -200,6 +200,33 @@ public class HexMap : MonoBehaviour {
         return walkableHexes[hexIndex];
     }
 
+    public Hex GetAcceptableStartPosition()
+    {
+        int acceptableNumberOfImpassible = 2;
+        int rangeOfZoneToCheck = 2;
+        Hex possibleHex = null;
+        bool foundAcceptableTile = false;
+
+        while (!foundAcceptableTile) {
+            int hexIndex = Random.Range(0, walkableHexes.Count);
+            possibleHex = walkableHexes[hexIndex];
+
+            Hex[] neighbors = GetHexesWithRadiusOf(possibleHex, rangeOfZoneToCheck);
+            int impassibleTiles = 0;
+            foreach (Hex h in neighbors)
+            {
+                if (h.GetTerrain() == Terrain.MOUNTAIN || h.GetTerrain() == Terrain.WATER)
+                {
+                    impassibleTiles++;
+                }
+            }
+            if (impassibleTiles <= acceptableNumberOfImpassible)
+                foundAcceptableTile = true;
+        }
+
+        return possibleHex;
+    }
+
     public GameObject GetHexGOFromHex(Hex hex)
     {
         GameObject hexGO = hexToHexGOMap[hex];
@@ -244,24 +271,37 @@ public class HexMap : MonoBehaviour {
                 if (h.Elevation >= HeightMountain)
                     mr.material = MatMountains;
                 else if (h.Elevation < HeightFlat)
+                {
+                    mf.mesh = MeshWater;
                     mr.material = MatOcean;
+                    h.SetTerrain(Terrain.WATER);
+                }
                 else if (h.Moisture >= MoistureRainforest)
                 {
                     mr.material = MatGrasslands;
+
                 }
                 else if (h.Moisture >= MoistureForest)
                 {
                     mr.material = MatGrasslands;
+                    
                 }
                 else if (h.Moisture >= MoistureGrassland)
                 {
                     mr.material = MatGrasslands;
+                    
                 }
                 else
                 {
                     mr.material = MatDesert;
                 }
-
+                if(mf.mesh != MeshHill)
+                {
+                    if (mr.material == MatGrasslands)
+                        h.SetTerrain(Terrain.GRASS);
+                    else if (mr.material == MatDesert)
+                        h.SetTerrain(Terrain.DESERT);
+                }
             }
         }
     }

@@ -10,8 +10,8 @@ public class UI_PathDrawer : MonoBehaviour {
 
     Pawn mySelectedPawn;
 
-    float upwardAdjustOfMarkers = 0.02f;
-    float downwardAdjustOfMarkers = -1.6f;
+    float upwardAdjustOfMarkers = 0.4f;
+    float downwardAdjustOfMarkers = -1.8f;
 
     List<GameObject> pathMarkers;
 
@@ -81,6 +81,11 @@ public class UI_PathDrawer : MonoBehaviour {
         GameObject newMarker = new GameObject();
         Vector3 markerPosition = hexToMark.PositionFromCamera(Camera.main.transform.position);
         markerPosition.y += downwardAdjustOfMarkers;
+        //need to adjust upward for hills
+        if (hexToMark.GetTerrain() == Terrain.HILLS)
+        {
+            markerPosition.y += upwardAdjustOfMarkers;
+        }
         newMarker.transform.position = markerPosition;
         //newMarker.transform.SetParent()
         pathMarkers.Add(newMarker);

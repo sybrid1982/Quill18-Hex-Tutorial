@@ -89,9 +89,7 @@ public class GameManager : MonoBehaviour {
         pawnTransform.SetParent(null);
         //step two, move the pawn to the new location
         pawnTransform.position = hex.PositionFromCamera(Camera.main.transform.position, hexMap.NumRows(), hexMap.NumColumns());
-        //Step three, tell the pawn it has moved to a new location
-        selectedPawnComponent.pawn.SetMyHex(hex);
-        //step four, parent the pawn to the new hex
+        //Step three, set the pawn's parent to the new tile
         pawnTransform.SetParent(hexMap.GetHexGOFromHex(hex).transform);
     }
 
@@ -129,6 +127,9 @@ public class GameManager : MonoBehaviour {
         }
         selectedPawnComponent.pawn.ExecuteMovement();
         MovePawnVisual(selectedPawnComponent.pawn, selectedPawnComponent.pawn.GetMyHex());
+        //Update the UI elements
+        uiPathDrawer.DisplayPathForPawn(selectedPawnComponent.pawn);
+        selectedPawnDisplay.OnSelectedPawnUpdated();
     }
 
     public Player GetActivePlayer()
