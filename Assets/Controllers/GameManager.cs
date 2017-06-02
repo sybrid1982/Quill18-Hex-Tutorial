@@ -130,6 +130,10 @@ public class GameManager : MonoBehaviour {
         //Update the UI elements
         uiPathDrawer.DisplayPathForPawn(selectedPawnComponent.pawn);
         selectedPawnDisplay.OnSelectedPawnUpdated();
+        //Finally we should check to see if the player has any pawns with remaining movement
+        //If they don't, they should be informed of this so they know that they should end their turn
+        //which... they can't do yet.  Also we only have one player at the moment.
+        //So, there are issues.
     }
 
     public Player GetActivePlayer()

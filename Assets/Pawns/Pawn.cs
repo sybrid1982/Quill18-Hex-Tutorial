@@ -104,8 +104,10 @@ public class Pawn {
 
     public void ExecuteMovement()
     {
-        //while we have movement left this turn OR there are hexes left to move to
-        while(remainingMovement > 0 || myHexPath.Length() > 0)
+        //while we have movement left this turn AND there are hexes left to move to
+        //if we have remaining movement but no tiles left to move to there's no point in trying to move further
+        //and if we have tiles left to move to and are out of movement, we shouldn't be moving
+        while(remainingMovement > 0 && myHexPath.Length() > 0)
         {
             //get the next hex to move to
             currentGoalHex = myHexPath.GetNextHex();
@@ -113,7 +115,7 @@ public class Pawn {
             SetMyHex(currentGoalHex);
             //TODO: IMPLEMENT ABOVE
             //Deplete remaining movement
-            remainingMovement--;
+            remainingMovement -= currentGoalHex.MovementCost;
         }
     }
 
