@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour {
 
@@ -11,6 +12,7 @@ public class GameManager : MonoBehaviour {
     List<Player> players;
     Player activePlayer;
     PawnKeeper pawnKeeper;
+    int startingNumberOfPlayers = 2;
 
 	// Use this for initialization
 	void Start () {
@@ -24,10 +26,13 @@ public class GameManager : MonoBehaviour {
         hexMap = FindObjectOfType<HexMap>();
         pawnKeeper = FindObjectOfType<PawnKeeper>();
         players = new List<Player>();
-        string newPlayerName = "Syd";
-        Player newPlayer = new Player(newPlayerName);
-        players.Add(newPlayer);
-        activePlayer = newPlayer;
+        for (int i = 0; i < startingNumberOfPlayers; i++)
+        {
+            string newPlayerName = "Syd_" + i.ToString();
+            Player newPlayer = new Player(newPlayerName);
+            players.Add(newPlayer);
+        }
+        
 
         hexMap.StartPressed();
         pawnKeeper.StartPawnkeeper();
@@ -35,7 +40,18 @@ public class GameManager : MonoBehaviour {
         {
             pawnKeeper.GenerateStartPawn(p);
         }
+        //right now grab the first player in the index
+        //in the future could instead grab a random player index
+        activePlayer = players[0];
         activePlayer.StartTurn();
+        print("Number of players: " + players.Count);
+    }
+
+    public void SetNumberOfPlayers(Dropdown dropDownMenu)
+    {
+        //index 0 is 2, and it goes up from there
+        //so index 1 is 3...  so just add 2 to the dropdown's value
+        startingNumberOfPlayers = dropDownMenu.value + 2;
     }
 
     void SetSelectedPawn(PawnComponent pawn)
@@ -52,7 +68,6 @@ public class GameManager : MonoBehaviour {
 
     public PawnComponent GetSelectedPawn()
     {
-        
         return selectedPawnComponent;
     }
 

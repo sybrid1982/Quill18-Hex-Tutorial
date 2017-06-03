@@ -39,7 +39,7 @@ public class PawnKeeper : MonoBehaviour {
 
         GameManager gameManager = FindObjectOfType<GameManager>();
 
-        Pawn p = new Pawn(stringToPrototypeMap["Basic"], spawnHex, gameManager.GetActivePlayer());
+        Pawn p = new Pawn(stringToPrototypeMap["Basic"], spawnHex, player);
         player.AddPawn(p);
 
         GameObject pawnGO = (GameObject)Instantiate(PawnPrefab,
