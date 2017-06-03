@@ -125,8 +125,14 @@ public class GameManager : MonoBehaviour {
             Debug.LogWarning("Trying to move a pawn when we don't have one selected in the game manager");
             return;
         }
+        //This should probably be a two step loop here
+        //first, we tell the pawn to move
+        //then, we tell the visual to move
+        //once the visual is moved (it should probably have a flag or something?)
+        //then go back and see if the pawn can move another hex
         selectedPawnComponent.pawn.ExecuteMovement();
         MovePawnVisual(selectedPawnComponent.pawn, selectedPawnComponent.pawn.GetMyHex());
+        
         //Update the UI elements
         uiPathDrawer.DisplayPathForPawn(selectedPawnComponent.pawn);
         selectedPawnDisplay.OnSelectedPawnUpdated();
@@ -156,5 +162,23 @@ public class GameManager : MonoBehaviour {
     {
         Vector3 pawnPosition = pawnKeeper.GetPawnGOFromPawn(pawn).transform.position;
         return pawnPosition;
+    }
+
+    public void EndTurn()
+    {
+        int playerCount = players.Count;
+
+        int playerIndex = players.FindIndex( x => x == activePlayer);
+
+        if(playerIndex + 1 == playerCount)
+        {
+            playerIndex = 0;
+        } else
+        {
+            playerIndex++;
+        }
+
+        activePlayer = players[playerIndex];
+        activePlayer.StartTurn();
     }
 }
