@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class MouseInputManager : MonoBehaviour {
 
@@ -47,7 +48,7 @@ public class MouseInputManager : MonoBehaviour {
 
     private void EvaluateLeftMouseClick()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) 
         {
             Vector3 mouseSpot = Input.mousePosition;
             //Send this to the HexMap
