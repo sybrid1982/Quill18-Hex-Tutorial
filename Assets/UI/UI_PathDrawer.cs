@@ -59,8 +59,6 @@ public class UI_PathDrawer : MonoBehaviour {
             return;
         }
 
-        Debug.Log("copied hexstack contains items");
-
 
          while(hexStack.Count > 1)
         {

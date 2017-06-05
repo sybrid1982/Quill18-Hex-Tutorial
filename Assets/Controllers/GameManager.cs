@@ -44,7 +44,7 @@ public class GameManager : MonoBehaviour {
         //in the future could instead grab a random player index
         activePlayer = players[0];
         activePlayer.StartTurn();
-        print("Number of players: " + players.Count);
+        GetFirstPawnForActivePlayerPositionAndFocusCamera();
     }
 
     public void SetNumberOfPlayers(Dropdown dropDownMenu)
@@ -62,6 +62,7 @@ public class GameManager : MonoBehaviour {
 
     void ClearSelectedPawn()
     {
+        uiPathDrawer.ClearPath();
         selectedPawnDisplay.OnPawnSelected(null);
         selectedPawnComponent = null;
     }
@@ -192,8 +193,22 @@ public class GameManager : MonoBehaviour {
         {
             playerIndex++;
         }
-
+        ClearSelectedPawn();
         activePlayer = players[playerIndex];
         activePlayer.StartTurn();
+        GetFirstPawnForActivePlayerPositionAndFocusCamera();
+    }
+
+    public void GetFirstPawnForActivePlayerPositionAndFocusCamera()
+    {
+        Pawn pawn = GetFirstPawnForActivePlayer();
+        if (pawn != null)
+        {
+            Vector3 pawnPosition = GetPawnPosition(pawn);
+            Camera.main.GetComponent<CameraMotionHandler>().MoveToPosition(pawnPosition);
+        } else
+        {
+            //probably make the End Turn button flash yellow or something
+        }
     }
 }

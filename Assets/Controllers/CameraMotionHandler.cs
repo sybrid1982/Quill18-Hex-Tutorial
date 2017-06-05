@@ -42,7 +42,6 @@ public class CameraMotionHandler : MonoBehaviour {
 
     public void MoveToPosition(Vector3 position)
     {
-        Debug.Log("Asked to move to a new position");
         position.y = this.transform.position.y;
         position.z += -5;
         this.transform.position = position;
