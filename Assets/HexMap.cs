@@ -2,6 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//TODO:  Hexmap currently handles both data and the display of that data
+//DEFINITELY NEED TO CHANGE THAT
+//If HexMap just handled knowing about the map stuff, then could have a 
+//HexMapDisplay object whose job it was to display hexes.  For instance, when
+//Passed a player, the HexMapDisplay could set all the visuals to black EXCEPT
+//The ones which the player can see or has seen at some point
 public class HexMap : MonoBehaviour {
 
     [SerializeField]

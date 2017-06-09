@@ -12,6 +12,10 @@ using System.Collections.Generic;
 public class Player  {
     List<Pawn> myPawns;
     string playerName;
+    HashSet<Hex> revealedHexes;
+    HashSet<Hex> currentlyVisibleHexes;
+
+    bool startedFirstTurn = false;
 
     public string PlayerName
     {
@@ -29,6 +33,8 @@ public class Player  {
     public Player(string name)
     {
         myPawns = new List<Pawn>();
+        revealedHexes = new HashSet<Hex>();
+        currentlyVisibleHexes = new HashSet<Hex>();
         playerName = name;
     }
 
@@ -36,7 +42,34 @@ public class Player  {
     {
         if (myPawns.Count > 0)
             foreach (Pawn p in myPawns)
+            {
                 p.BeginPawnTurn();
+            }
+
+        if (startedFirstTurn == false)
+            StartFirstTurn();
+    }
+
+    public void StartFirstTurn()
+    {
+        //Idea:  At the start of your first turn,
+        //you need to poll each of your starting unit(s),
+        //to find out what hexes you can see.  For now,
+        //assuming you see hex your unit is in and all of that
+        //hexes neighbors.  Thankfully, we can ask the pawn what space
+        //it is in and what neighbors it has
+        if (myPawns.Count > 0)
+            foreach (Pawn p in myPawns)
+            {
+                revealedHexes.Add(p.GetMyHex());
+                currentlyVisibleHexes.Add(p.GetMyHex());
+                foreach (Hex neighbor in p.GetMyHex().GetNeighbors())
+                {
+                    revealedHexes.Add(neighbor);
+                    currentlyVisibleHexes.Add(neighbor);
+                }
+            }
+        startedFirstTurn = true;
     }
 
     public void EndTurn()
@@ -60,6 +93,13 @@ public class Player  {
     public void AddPawn(Pawn p)
     {
         myPawns.Add(p);
+    }
+
+    public void PawnMoved(Pawn p)
+    {
+        //When a pawn moves, different hexes become visible and some undiscovered ones
+        //can become discovered
+        //Might need the old hex to know which spaces to first mark as invisible
     }
 
     public Pawn GetPawnWithRemainingMove()
