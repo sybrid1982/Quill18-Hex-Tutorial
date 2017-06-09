@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 
 //Hex class defines the grid position, world space position, size
@@ -61,6 +62,8 @@ public class Hex {
     public float Moisture;
 
     private Feature feature;
+
+    HashSet<Pawn> pawns;
 
     public int MovementCost
     {
@@ -232,5 +235,19 @@ public class Hex {
         return Mathf.Max(dQ,
                         Mathf.Abs(a.R - b.R),
                         Mathf.Abs(a.S - b.S));
+    }
+
+    public void AddPawn(Pawn pawn)
+    {
+        if (pawns == null)
+            pawns = new HashSet<Pawn>();
+
+        pawns.Add(pawn);
+    }
+    
+    public void RemovePawn(Pawn pawn)
+    {
+        if (pawns != null)
+            pawns.Remove(pawn);
     }
 }

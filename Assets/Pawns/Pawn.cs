@@ -22,10 +22,10 @@ public class Pawn {
     //Constructor for pawn prototypes
     //This one should take every stat for a type of pawn
     //and keep it, but should never be instantiated itself
-    public Pawn(string pawnType, int passedMovement)
+    public Pawn(string pawnType, int movement)
     {
         this.pawnType = pawnType;
-        this.movement = passedMovement;
+        this.movement = movement;
     }
     
     Hex myHex;
@@ -58,7 +58,11 @@ public class Pawn {
 
     public void SetMyHex(Hex newHex)
     {
+        if (myHex != null)
+            myHex.RemovePawn(this);
+
         myHex = newHex;
+        myHex.AddPawn(this);
         //pawnMoveEvent(this, newHex);
     }
     public Hex GetMyHex()

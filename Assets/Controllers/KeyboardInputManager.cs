@@ -52,7 +52,7 @@ public class KeyboardInputManager : MonoBehaviour {
         }
         if (upDown != 0 || leftRight != 0)
         {
-            cameraMotionHandler.MoveCamera(upDown, leftRight);
+            cameraMotionHandler.SetMoveTargetPosition(upDown, leftRight);
         }
         if (Input.GetKeyDown(focusOnUnit))
         {
