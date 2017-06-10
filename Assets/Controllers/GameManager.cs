@@ -6,12 +6,15 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour {
 
     HexMap hexMap;
-    PawnComponent selectedPawnComponent;
     UI_SelectedPawnDisplay selectedPawnDisplay;
     UI_PathDrawer uiPathDrawer;
-    List<Player> players;
-    Player activePlayer;
     PawnKeeper pawnKeeper;
+    List<Player> players;
+    WorldDisplay worldDisplay;
+
+    Player activePlayer;
+    PawnComponent selectedPawnComponent;
+
     int startingNumberOfPlayers = 2;
 
 	// Use this for initialization
@@ -24,6 +27,7 @@ public class GameManager : MonoBehaviour {
     public void StartPressed()
     {
         hexMap = FindObjectOfType<HexMap>();
+        worldDisplay = FindObjectOfType<WorldDisplay>();
         pawnKeeper = FindObjectOfType<PawnKeeper>();
         players = new List<Player>();
         for (int i = 0; i < startingNumberOfPlayers; i++)
@@ -32,9 +36,9 @@ public class GameManager : MonoBehaviour {
             Player newPlayer = new Player(newPlayerName);
             players.Add(newPlayer);
         }
-        
-
         hexMap.StartPressed();
+        worldDisplay.Initialize(hexMap);
+
         pawnKeeper.StartPawnkeeper();
         foreach (Player p in players)
         {
@@ -42,8 +46,8 @@ public class GameManager : MonoBehaviour {
         }
         //right now grab the first player in the index
         //in the future could instead grab a random player index
-        activePlayer = players[0];
-        activePlayer.StartTurn();
+        SetActivePlayer(players[0]);
+
         GetFirstPawnForActivePlayerPositionAndFocusCamera();
     }
 
@@ -106,7 +110,7 @@ public class GameManager : MonoBehaviour {
         //step two, move the pawn to the new location
         pawnTransform.position = hex.PositionFromCamera(Camera.main.transform.position, hexMap.NumRows(), hexMap.NumColumns());
         //Step three, set the pawn's parent to the new tile
-        pawnTransform.SetParent(hexMap.GetHexGOFromHex(hex).transform);
+        pawnTransform.SetParent(worldDisplay.GetHexGOFromHex(hex).transform);
     }
 
     public void SelectedPawnDrag(Hex hexToDrawTo)
@@ -210,5 +214,17 @@ public class GameManager : MonoBehaviour {
         {
             //probably make the End Turn button flash yellow or something
         }
+    }
+
+    public void SetActivePlayer(Player player)
+    {
+        activePlayer = player;
+        player.StartTurn();
+        worldDisplay.DisplayMapForPlayer(player);
+    }
+
+    public WorldDisplay GetWorldDisplay()
+    {
+        return worldDisplay;
     }
 }

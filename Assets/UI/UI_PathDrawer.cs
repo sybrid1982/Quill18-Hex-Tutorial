@@ -80,7 +80,7 @@ public class UI_PathDrawer : MonoBehaviour {
         Vector3 markerPosition = hexToMark.PositionFromCamera(Camera.main.transform.position);
         markerPosition.y += downwardAdjustOfMarkers;
         //need to adjust upward for hills
-        if (hexToMark.GetTerrain() == Terrain.HILLS)
+        if (hexToMark.GetTerrain() == Terrain.ARID_HILLS || hexToMark.GetTerrain() == Terrain.GRASSY_HILLS)
         {
             markerPosition.y += upwardAdjustOfMarkers;
         }

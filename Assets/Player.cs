@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 //The player class stores information like "what pawns does this player control
 //It has functions for:
@@ -114,4 +115,29 @@ public class Player  {
         //null means there are no pawns with remaining movement
         return null;
     }
+
+    public Hex[] GetVisibleHexes()
+    {
+        return currentlyVisibleHexes.ToArray();
+    }
+
+    public Hex[] GetRevealedButNotVisibleHexes()
+    {
+        //These hexes will ideally have some sort of 'fog of war' element
+        //applied to them.  For now maybe just make their material half alpha?
+        List<Hex> returnedHexes = new List<Hex>();
+
+        foreach(Hex h in revealedHexes)
+        {
+            if (currentlyVisibleHexes.Contains(h))
+            {
+                //Then don't add it to the list we're building
+            } else
+            {
+                returnedHexes.Add(h);
+            }
+        }
+        return returnedHexes.ToArray();
+    }
+    
 }

@@ -20,8 +20,15 @@ public class HexMap_Continents : HexMap {
         //simulate rainfall/moisture (probably just Perlin for now) and set plains/grasslands + forest
         SimulateRainfall();
 
-        //now make sure all the hex visuals are updated 
-        UpdateHexVisuals();
+        //Done setting the numbers so generate the terrain
+        for (int column = 0; column < NumColumns(); column++)
+        {
+            for (int row = 0; column < NumRows(); column++)
+            {
+                Hex h = GetHexAt(row, column);
+                SetTerrainForHex(h);
+            }
+        }
     }
 
     private void SimulateRainfall()

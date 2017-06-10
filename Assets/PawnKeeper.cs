@@ -45,7 +45,7 @@ public class PawnKeeper : MonoBehaviour {
         GameObject pawnGO = (GameObject)Instantiate(PawnPrefab,
                 spawnHex.PositionFromCamera(Camera.main.transform.position, hexMap.NumRows(), hexMap.NumColumns()),
                 Quaternion.identity,
-                hexMap.GetHexGOFromHex(spawnHex).transform);
+                gameManager.GetWorldDisplay().GetHexGOFromHex(spawnHex).transform);
 
         pawnGO.GetComponent<PawnComponent>().pawn = p;
         pawnToPawnGOMap.Add(p, pawnGO);
@@ -57,7 +57,10 @@ public class PawnKeeper : MonoBehaviour {
         if (pawnToPawnGOMap.ContainsKey(pawn))
             return pawnToPawnGOMap[pawn];
         else
+        {
+            Debug.LogError("Asked for pawn that does not exist in map");
             return null;
+        }
     }
 
 }

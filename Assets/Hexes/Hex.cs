@@ -24,7 +24,8 @@ public enum Terrain
 {
     GRASS,
     MOUNTAIN,
-    HILLS,
+    ARID_HILLS,
+    GRASSY_HILLS,
     DESERT,
     WATER
 }
@@ -76,7 +77,8 @@ public class Hex {
                 case Terrain.GRASS:
                     mc = 1;
                     break;
-                case Terrain.HILLS:
+                case Terrain.ARID_HILLS:
+                case Terrain.GRASSY_HILLS:
                     mc = 2;
                     break;
                 case Terrain.MOUNTAIN:
