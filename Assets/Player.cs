@@ -53,22 +53,10 @@ public class Player  {
 
     public void StartFirstTurn()
     {
-        //Idea:  At the start of your first turn,
-        //you need to poll each of your starting unit(s),
-        //to find out what hexes you can see.  For now,
-        //assuming you see hex your unit is in and all of that
-        //hexes neighbors.  Thankfully, we can ask the pawn what space
-        //it is in and what neighbors it has
         if (myPawns.Count > 0)
             foreach (Pawn p in myPawns)
             {
-                revealedHexes.Add(p.GetMyHex());
-                currentlyVisibleHexes.Add(p.GetMyHex());
-                foreach (Hex neighbor in p.GetMyHex().GetNeighbors())
-                {
-                    revealedHexes.Add(neighbor);
-                    currentlyVisibleHexes.Add(neighbor);
-                }
+                SetHexesVisible(p.GetVisibleHexes());
             }
         startedFirstTurn = true;
     }
@@ -94,13 +82,23 @@ public class Player  {
     public void AddPawn(Pawn p)
     {
         myPawns.Add(p);
+        p.pawnMoveEvent += PawnMoved;
     }
 
     public void PawnMoved(Pawn p)
     {
-        //When a pawn moves, different hexes become visible and some undiscovered ones
-        //can become discovered
-        //Might need the old hex to know which spaces to first mark as invisible
+        /*currently not going to use passed pawn p
+         At least not in this function (likely will for animating movement later)
+         This function will first clear the visible hexes list, then cycle through
+         every pawn and get their visible hexes*/
+        currentlyVisibleHexes.Clear();
+        foreach (Pawn pawn in myPawns)
+        {
+            SetHexesVisible(pawn.GetVisibleHexes());
+        }
+        //World display needs to know that we've changed what is visible as well
+        //Pass through GameManager who will then inform WorldDisplay
+
     }
 
     public Pawn GetPawnWithRemainingMove()
@@ -140,4 +138,12 @@ public class Player  {
         return returnedHexes.ToArray();
     }
     
+    void SetHexesVisible(Hex[] hexes)
+    {
+        foreach (Hex hex in hexes)
+        {
+            currentlyVisibleHexes.Add(hex);
+            revealedHexes.Add(hex);
+        }
+    }
 }

@@ -111,6 +111,8 @@ public class GameManager : MonoBehaviour {
         pawnTransform.position = hex.PositionFromCamera(Camera.main.transform.position, hexMap.NumRows(), hexMap.NumColumns());
         //Step three, set the pawn's parent to the new tile
         pawnTransform.SetParent(worldDisplay.GetHexGOFromHex(hex).transform);
+        //Step four, hey we moved a pawn, so let's go ahead and also change what tiles are visible
+        worldDisplay.DisplayMapForPlayer(pawn.GetPlayer());
     }
 
     public void SelectedPawnDrag(Hex hexToDrawTo)
@@ -198,7 +200,7 @@ public class GameManager : MonoBehaviour {
             playerIndex++;
         }
         ClearSelectedPawn();
-        activePlayer = players[playerIndex];
+        SetActivePlayer(players[playerIndex]);
         activePlayer.StartTurn();
         GetFirstPawnForActivePlayerPositionAndFocusCamera();
     }

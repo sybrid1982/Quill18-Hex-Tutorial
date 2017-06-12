@@ -71,7 +71,7 @@ public class WorldDisplay : MonoBehaviour
         }
     }
 
-    public void UpdateHexVisuals(Hex h)
+    public void UpdateHexVisuals(Hex h, bool seeHexEntirely = true)
     {
         if (h == null)
         {

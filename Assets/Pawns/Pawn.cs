@@ -17,6 +17,7 @@ public class Pawn {
         this.pawnType = prototypePawn.pawnType;
         this.movement = prototypePawn.movement;
         this.owningPlayer = owningPlayer;
+        visibleHexes = new List<Hex>();
     }
 
     //Constructor for pawn prototypes
@@ -43,6 +44,8 @@ public class Pawn {
     int remainingMovement;
     //And who owns this pawn
     Player owningPlayer;
+    //What tiles can this pawn see?
+    List<Hex> visibleHexes;
 
     //pawnType is just a way of knowing what kind of pawn a given
     //pawn is
@@ -53,17 +56,18 @@ public class Pawn {
     //the code here should handle all actual movement, and then
     //the delegate will say "hey, I've moved so go ahead and move
     //my displayed position."
-    public delegate void PawnMovesToNewHex(Pawn pawn, Hex hex);
+    public delegate void PawnMovesToNewHex(Pawn pawn);
     public event PawnMovesToNewHex pawnMoveEvent;
 
     public void SetMyHex(Hex newHex)
     {
         if (myHex != null)
             myHex.RemovePawn(this);
-
+        
+        Hex oldHex = myHex;
         myHex = newHex;
         myHex.AddPawn(this);
-        //pawnMoveEvent(this, newHex);
+        pawnMoveEvent(this);
     }
     public Hex GetMyHex()
     {
@@ -166,5 +170,25 @@ public class Pawn {
         }
 
         return myStack;
+    }
+
+    private void DetermineVisibleHexes()
+    {
+        /*Right now assume a visibility range of 1.  In the future
+         * units may have different visibility ranges and we may need
+         to make the HexMap function for finding all tiles in a range
+         public*/
+        visibleHexes.Clear();
+        visibleHexes.Add(myHex);
+        foreach(Hex h in myHex.GetNeighbors())
+        {
+            visibleHexes.Add(h);
+        }
+    }
+
+    public Hex[] GetVisibleHexes()
+    {
+        DetermineVisibleHexes();
+        return visibleHexes.ToArray();
     }
 }
