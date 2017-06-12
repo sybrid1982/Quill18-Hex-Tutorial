@@ -7,12 +7,16 @@ public class MouseInputManager : MonoBehaviour {
 
     [SerializeField]
     int hexLayer;
+    [SerializeField]
+    float maxTimeAllowedToDoubleClick = 0.5f;
 
     HexMap hexMap;
     GameManager gameManager;
     bool isDraggingFromPawn = false;
     bool mouseDownOnPawn = false;
     Hex lastHexDraggedOver;
+    float timeSinceLastClick;
+    Hex lastHexClicked;
 
 	// Use this for initialization
 	void Start () {
@@ -31,6 +35,11 @@ public class MouseInputManager : MonoBehaviour {
         EvaluateLeftMouseDrag();
 
         EvaluateLeftMouseRelease();
+    }
+
+    private void AdvanceTimeSinceLastClick()
+    {
+        timeSinceLastClick += Time.deltaTime;
     }
 
     private static void EvaluateMouseScrollWheel()
@@ -74,10 +83,19 @@ public class MouseInputManager : MonoBehaviour {
                 else if (hit.collider.GetComponentInParent<HexComponent>() != null)
                 {
                     HexComponent hexComponent = hit.collider.GetComponentInParent<HexComponent>();
-                    gameManager.HexClicked(hexComponent.hex);
+                    if(lastHexClicked == hexComponent.hex && timeSinceLastClick <= maxTimeAllowedToDoubleClick)
+                    {
+                        //handle double click behavior
+                        //Which should be moving the pawn to the clicked hex
+                    } else
+                    {
+                        gameManager.HexClicked(hexComponent.hex);
+                    }
                     mouseDownOnPawn = false;
+                    lastHexClicked = hexComponent.hex;
                 }
             }
+            timeSinceLastClick = 0.0f;
         }
     }
 

@@ -8,10 +8,7 @@ using UnityEngine;
 //HexMapDisplay object whose job it was to display hexes.  For instance, when
 //Passed a player, the HexMapDisplay could set all the visuals to black EXCEPT
 //The ones which the player can see or has seen at some point
-public class HexMap : MonoBehaviour {
-
-    [SerializeField]
-    GameObject HexPrefab;
+public class HexMap : ScriptableObject {
 
     [SerializeField]
     int numRows = 20;
@@ -105,12 +102,13 @@ public class HexMap : MonoBehaviour {
         //When a new hex is created there are three easy places to check for neighbors
         //To the left of the hex, the bottom-left of the hex, and bottom-right
         //neighbor to the left
-        Vector2[] potentialNeighborCoords = {   new Vector2 (h.Q - 1, h.R),          //left
-                                                new Vector2 (h.Q, h.R - 1),         //lower left
-                                                new Vector2 (h.Q + 1, h.R - 1)};    //lower right
+        Vector2[] potentialNeighborCoords = {   new Vector2 (h.Q - 1, h.R + 1),     //upper left
+                                                new Vector2 (h.Q - 1, h.R),         //left
+                                                new Vector2 (h.Q, h.R - 1)          //lower left
+                                                };    
         for (int i = 0; i < 3; i++)
         {
-            GenerateNeighbor(h, potentialNeighborCoords[i], i+3);
+            GenerateNeighbor(h, potentialNeighborCoords[i], i+2);
         }
         //HOWEVER, if this is the last tile in a row, there are two
         //other neighbors to consider to wrap the map
@@ -129,7 +127,7 @@ public class HexMap : MonoBehaviour {
             rightH.SetNeighbor(h, Direction.LEFT);
         }
         Hex lowerRightH = GetHexAt(0, h.R - 1);
-        if (lowerRightH != null)
+        if(lowerRightH !=null)
         {
             h.SetNeighbor(lowerRightH, Direction.LOWER_RIGHT);
             lowerRightH.SetNeighbor(h, Direction.UPPER_LEFT);
@@ -191,7 +189,9 @@ public class HexMap : MonoBehaviour {
             int impassibleTiles = 0;
             foreach (Hex h in neighbors)
             {
-                if (h.GetTerrain() == Terrain.MOUNTAIN || h.GetTerrain() == Terrain.WATER)
+                if (h == null)
+                    Debug.LogWarning("Null neighbor, something is borked");
+                else if (h.GetTerrain() == Terrain.MOUNTAIN || h.GetTerrain() == Terrain.WATER)
                 {
                     impassibleTiles++;
                 }
