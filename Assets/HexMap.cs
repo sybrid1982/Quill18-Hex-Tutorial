@@ -42,7 +42,7 @@ public class HexMap : ScriptableObject {
     public void StartPressed()
     {
         walkableHexes = new List<Hex>();
-        terrainTypeMap = new Dictionary<TerrainType, TerrainData>();
+        PrototypeTerrainData();
         GenerateMap();
     }
 
@@ -168,6 +168,14 @@ public class HexMap : ScriptableObject {
 
     }
 
+    public Hex GetRandomHexFromHexMap()
+    {
+        int hexIndexQ = Random.Range(0, numColumns);
+        int hexIndexR = Random.Range(0, numRows);
+
+        return GetHexAt(hexIndexQ,hexIndexR);
+    }
+
     public Hex GetRandomWalkableHexFromHexMap()
     {
         int hexIndex = Random.Range(0, walkableHexes.Count);
@@ -243,12 +251,13 @@ public class HexMap : ScriptableObject {
 
     protected void CreateTerrainForHexes()
     {
+        Debug.Log("TerrainData setting called for hexes");
         //Done setting the numbers so generate the terrain
-        for (int column = 0; column < NumColumns(); column++)
+        for (int column = 0; column < numColumns; column++)
         {
-            for (int row = 0; column < NumRows(); column++)
+            for (int row = 0; row < numRows; row++)
             {
-                Hex h = GetHexAt(row, column);
+                Hex h = GetHexAt(column, row);
                 SetTerrainForHex(h);
             }
         }
@@ -256,6 +265,7 @@ public class HexMap : ScriptableObject {
 
     void PrototypeTerrainDataForTerrainType(TerrainType ttype, int movementCost, int cpt, int fpt, int bpt)
     {
+        Debug.Log("Prototyping called!");
         if (terrainTypeMap.ContainsKey(ttype))
         {
             Debug.LogError("Overwriting TerrainType " + ttype + " with new data!");
@@ -271,6 +281,9 @@ public class HexMap : ScriptableObject {
         int hillMovementCost = 2;
         int normalMovementCost = 1;
         int impassibleMovememntCost = 0;
+        
+        //Setup the terraintypemap
+        terrainTypeMap = new Dictionary<TerrainType, TerrainData>();
 
         //Set up Arid Hills to cost 2 movement to go over, give 1 coin and 2 production and 0 food.
         PrototypeTerrainDataForTerrainType(TerrainType.ARID_HILLS, hillMovementCost, 1, 0, 2);

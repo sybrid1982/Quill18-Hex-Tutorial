@@ -30,10 +30,11 @@ public class GameManager : MonoBehaviour {
         hexMap = FindObjectOfType<HexMap>();
         worldDisplay = FindObjectOfType<WorldDisplay>();
         pawnKeeper = FindObjectOfType<PawnKeeper>();
-        CreatePlayers();
+        
         hexMap.StartPressed();
         worldDisplay.Initialize(hexMap);
 
+        CreatePlayers();
         pawnKeeper.StartPawnkeeper();
         foreach (Player p in players)
         {
