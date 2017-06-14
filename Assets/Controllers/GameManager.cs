@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour {
 
@@ -11,6 +12,7 @@ public class GameManager : MonoBehaviour {
     List<Player> players;
     Player activePlayer;
     PawnKeeper pawnKeeper;
+    int startingNumberOfPlayers = 2;
 
 	// Use this for initialization
 	void Start () {
@@ -24,10 +26,13 @@ public class GameManager : MonoBehaviour {
         hexMap = FindObjectOfType<HexMap>();
         pawnKeeper = FindObjectOfType<PawnKeeper>();
         players = new List<Player>();
-        string newPlayerName = "Syd";
-        Player newPlayer = new Player(newPlayerName);
-        players.Add(newPlayer);
-        activePlayer = newPlayer;
+        for (int i = 0; i < startingNumberOfPlayers; i++)
+        {
+            string newPlayerName = "Syd_" + i.ToString();
+            Player newPlayer = new Player(newPlayerName);
+            players.Add(newPlayer);
+        }
+        
 
         hexMap.StartPressed();
         pawnKeeper.StartPawnkeeper();
@@ -35,7 +40,18 @@ public class GameManager : MonoBehaviour {
         {
             pawnKeeper.GenerateStartPawn(p);
         }
+        //right now grab the first player in the index
+        //in the future could instead grab a random player index
+        activePlayer = players[0];
         activePlayer.StartTurn();
+        GetFirstPawnForActivePlayerPositionAndFocusCamera();
+    }
+
+    public void SetNumberOfPlayers(Dropdown dropDownMenu)
+    {
+        //index 0 is 2, and it goes up from there
+        //so index 1 is 3...  so just add 2 to the dropdown's value
+        startingNumberOfPlayers = dropDownMenu.value + 2;
     }
 
     void SetSelectedPawn(PawnComponent pawn)
@@ -46,13 +62,13 @@ public class GameManager : MonoBehaviour {
 
     void ClearSelectedPawn()
     {
+        uiPathDrawer.ClearPath();
         selectedPawnDisplay.OnPawnSelected(null);
         selectedPawnComponent = null;
     }
 
     public PawnComponent GetSelectedPawn()
     {
-        
         return selectedPawnComponent;
     }
 
@@ -125,11 +141,21 @@ public class GameManager : MonoBehaviour {
             Debug.LogWarning("Trying to move a pawn when we don't have one selected in the game manager");
             return;
         }
+        //This should probably be a two step loop here
+        //first, we tell the pawn to move
+        //then, we tell the visual to move
+        //once the visual is moved (it should probably have a flag or something?)
+        //then go back and see if the pawn can move another hex
         selectedPawnComponent.pawn.ExecuteMovement();
         MovePawnVisual(selectedPawnComponent.pawn, selectedPawnComponent.pawn.GetMyHex());
+        
         //Update the UI elements
         uiPathDrawer.DisplayPathForPawn(selectedPawnComponent.pawn);
         selectedPawnDisplay.OnSelectedPawnUpdated();
+        //Finally we should check to see if the player has any pawns with remaining movement
+        //If they don't, they should be informed of this so they know that they should end their turn
+        //which... they can't do yet.  Also we only have one player at the moment.
+        //So, there are issues.
     }
 
     public Player GetActivePlayer()
@@ -152,5 +178,37 @@ public class GameManager : MonoBehaviour {
     {
         Vector3 pawnPosition = pawnKeeper.GetPawnGOFromPawn(pawn).transform.position;
         return pawnPosition;
+    }
+
+    public void EndTurn()
+    {
+        int playerCount = players.Count;
+
+        int playerIndex = players.FindIndex( x => x == activePlayer);
+
+        if(playerIndex + 1 == playerCount)
+        {
+            playerIndex = 0;
+        } else
+        {
+            playerIndex++;
+        }
+        ClearSelectedPawn();
+        activePlayer = players[playerIndex];
+        activePlayer.StartTurn();
+        GetFirstPawnForActivePlayerPositionAndFocusCamera();
+    }
+
+    public void GetFirstPawnForActivePlayerPositionAndFocusCamera()
+    {
+        Pawn pawn = GetFirstPawnForActivePlayer();
+        if (pawn != null)
+        {
+            Vector3 pawnPosition = GetPawnPosition(pawn);
+            Camera.main.GetComponent<CameraMotionHandler>().MoveToPosition(pawnPosition);
+        } else
+        {
+            //probably make the End Turn button flash yellow or something
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class MouseInputManager : MonoBehaviour {
 
@@ -9,7 +10,8 @@ public class MouseInputManager : MonoBehaviour {
 
     HexMap hexMap;
     GameManager gameManager;
-    bool isDraggingFromPawn;
+    bool isDraggingFromPawn = false;
+    bool mouseDownOnPawn = false;
     Hex lastHexDraggedOver;
 
 	// Use this for initialization
@@ -47,7 +49,7 @@ public class MouseInputManager : MonoBehaviour {
 
     private void EvaluateLeftMouseClick()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) 
         {
             Vector3 mouseSpot = Input.mousePosition;
             //Send this to the HexMap
@@ -65,13 +67,15 @@ public class MouseInputManager : MonoBehaviour {
                     //then draw the path
                     //if the mouse is released while over a tile and dragging a pawn, then start moving along the path
                     //if a key (escape for now) is pressed to abort the drag, then cancel the drag without starting the move
-                    isDraggingFromPawn = true;
                     lastHexDraggedOver = hit.collider.GetComponentInParent<HexComponent>().hex;
+                    //note that we clicked on a pawn
+                    mouseDownOnPawn = true;
                 }
                 else if (hit.collider.GetComponentInParent<HexComponent>() != null)
                 {
                     HexComponent hexComponent = hit.collider.GetComponentInParent<HexComponent>();
                     gameManager.HexClicked(hexComponent.hex);
+                    mouseDownOnPawn = false;
                 }
             }
         }
@@ -79,11 +83,11 @@ public class MouseInputManager : MonoBehaviour {
 
     private void EvaluateLeftMouseDrag()
     {
-        //if we aren't dragging, get out right away
-        if (!isDraggingFromPawn)
+        //if we aren't clicking and we didn't start that click on a pawn, we don't care
+        if (Input.GetMouseButton(0) == false || mouseDownOnPawn == false)
             return;
 
-
+        //we are clicking, and we started clicking on a pawn
         Vector3 mouseSpot = Input.mousePosition;
         RaycastHit hit;
 
@@ -94,7 +98,6 @@ public class MouseInputManager : MonoBehaviour {
         //Are we over a hex?
         if (Physics.Raycast(Camera.main.ScreenPointToRay(mouseSpot), out hit, 100f, layerMask))
         {
-            
             Hex hexMouseIsOver = hit.collider.GetComponentInParent<HexComponent>().hex;
             //is this the same hex we evaluated earlier?
             if (hexMouseIsOver == lastHexDraggedOver)
@@ -106,7 +109,8 @@ public class MouseInputManager : MonoBehaviour {
             lastHexDraggedOver = hexMouseIsOver;
             //second, tell the gamemanager that the drag is over a new tile
             gameManager.SelectedPawnDrag(lastHexDraggedOver);
-
+            //third, we are now dragging, as we've moved the mouse off the tile that had the pawn initially
+            isDraggingFromPawn = true;
         }
     }
 
@@ -119,6 +123,7 @@ public class MouseInputManager : MonoBehaviour {
         if (Input.GetMouseButtonUp(0))
         {
             isDraggingFromPawn = false;
+            mouseDownOnPawn = false;
             gameManager.LockInSelectedPawnPath();
             gameManager.ExecuteMoveForSelectedPawn();
         }
