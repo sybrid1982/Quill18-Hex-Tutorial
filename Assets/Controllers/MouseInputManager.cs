@@ -12,8 +12,8 @@ public class MouseInputManager : MonoBehaviour {
 
     HexMap hexMap;
     GameManager gameManager;
-    bool isDraggingFromPawn = false;
-    bool mouseDownOnPawn = false;
+    bool isDraggingFromPawn;
+    bool mouseDownOnPawn;
     Hex lastHexDraggedOver;
     float timeSinceLastClick;
     Hex lastHexClicked;
@@ -23,6 +23,7 @@ public class MouseInputManager : MonoBehaviour {
         hexMap = FindObjectOfType<HexMap>();
         gameManager = FindObjectOfType<GameManager>();
         isDraggingFromPawn = false;
+        mouseDownOnPawn = false;
 	}
 	
 	// Update is called once per frame

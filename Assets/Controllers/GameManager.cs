@@ -15,13 +15,14 @@ public class GameManager : MonoBehaviour {
     Player activePlayer;
     PawnComponent selectedPawnComponent;
 
-    int startingNumberOfPlayers = 2;
+    int startingNumberOfPlayers;
 
 	// Use this for initialization
 	void Start () {
         selectedPawnComponent = null;
         selectedPawnDisplay = FindObjectOfType<UI_SelectedPawnDisplay>();
         uiPathDrawer = FindObjectOfType<UI_PathDrawer>();
+        startingNumberOfPlayers = 2;
 	}
 
     public void StartPressed()
@@ -29,13 +30,7 @@ public class GameManager : MonoBehaviour {
         hexMap = FindObjectOfType<HexMap>();
         worldDisplay = FindObjectOfType<WorldDisplay>();
         pawnKeeper = FindObjectOfType<PawnKeeper>();
-        players = new List<Player>();
-        for (int i = 0; i < startingNumberOfPlayers; i++)
-        {
-            string newPlayerName = "Syd_" + i.ToString();
-            Player newPlayer = new Player(newPlayerName);
-            players.Add(newPlayer);
-        }
+        CreatePlayers();
         hexMap.StartPressed();
         worldDisplay.Initialize(hexMap);
 
@@ -49,6 +44,17 @@ public class GameManager : MonoBehaviour {
         SetActivePlayer(players[0]);
 
         GetFirstPawnForActivePlayerPositionAndFocusCamera();
+    }
+
+    private void CreatePlayers()
+    {
+        players = new List<Player>();
+        for (int i = 0; i < startingNumberOfPlayers; i++)
+        {
+            string newPlayerName = "Syd_" + i.ToString();
+            Player newPlayer = new Player(newPlayerName);
+            players.Add(newPlayer);
+        }
     }
 
     public void SetNumberOfPlayers(Dropdown dropDownMenu)
@@ -188,21 +194,27 @@ public class GameManager : MonoBehaviour {
 
     public void EndTurn()
     {
-        int playerCount = players.Count;
-
-        int playerIndex = players.FindIndex( x => x == activePlayer);
-
-        if(playerIndex + 1 == playerCount)
-        {
-            playerIndex = 0;
-        } else
-        {
-            playerIndex++;
-        }
+        int playerIndex = GetNextPlayerIndex();
         ClearSelectedPawn();
         SetActivePlayer(players[playerIndex]);
         activePlayer.StartTurn();
         GetFirstPawnForActivePlayerPositionAndFocusCamera();
+    }
+
+    private int GetNextPlayerIndex()
+    {
+        int playerIndex = players.FindIndex(x => x == activePlayer);
+
+        if (playerIndex + 1 == players.Count)
+        {
+            playerIndex = 0;
+        }
+        else
+        {
+            playerIndex++;
+        }
+
+        return playerIndex;
     }
 
     public void GetFirstPawnForActivePlayerPositionAndFocusCamera()
@@ -214,7 +226,7 @@ public class GameManager : MonoBehaviour {
             Camera.main.GetComponent<CameraMotionHandler>().MoveToPosition(pawnPosition);
         } else
         {
-            //probably make the End Turn button flash yellow or something
+            SuggestEndingTurn();
         }
     }
 
@@ -228,5 +240,10 @@ public class GameManager : MonoBehaviour {
     public WorldDisplay GetWorldDisplay()
     {
         return worldDisplay;
+    }
+
+    void SuggestEndingTurn()
+    {
+        print("You have no pawns left with turns!");
     }
 }

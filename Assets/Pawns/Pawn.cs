@@ -52,10 +52,6 @@ public class Pawn {
     //This may never come up
     string pawnType;
 
-    //probably need a delegate to control pawn movement - ideally
-    //the code here should handle all actual movement, and then
-    //the delegate will say "hey, I've moved so go ahead and move
-    //my displayed position."
     public delegate void PawnMovesToNewHex(Pawn pawn);
     public event PawnMovesToNewHex pawnMoveEvent;
 
