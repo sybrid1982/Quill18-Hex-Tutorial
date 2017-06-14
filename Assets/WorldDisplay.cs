@@ -84,34 +84,34 @@ public class WorldDisplay : MonoBehaviour
         MeshRenderer mr = hexGO.GetComponentInChildren<MeshRenderer>();
         MeshFilter mf = hexGO.GetComponentInChildren<MeshFilter>();
 
-        switch (h.GetTerrain())
+        switch (h.GetTerrainType())
         {
-            case Terrain.MOUNTAIN:
+            case TerrainType.MOUNTAIN:
                 mr.material = MatMountains;
                 mf.mesh = MeshMountain;
                 break;
-            case Terrain.ARID_HILLS:
+            case TerrainType.ARID_HILLS:
                 mr.material = MatDesert;
                 mf.mesh = MeshHill;
                 break;
-            case Terrain.GRASSY_HILLS:
+            case TerrainType.GRASSY_HILLS:
                 mr.material = MatGrasslands;
                 mf.mesh = MeshHill;
                 break;
-            case Terrain.GRASS:
+            case TerrainType.GRASS:
                 mr.material = MatGrasslands;
                 mf.mesh = MeshFlat;
                 break;
-            case Terrain.DESERT:
+            case TerrainType.DESERT:
                 mr.material = MatDesert;
                 mf.mesh = MeshFlat;
                 break;
-            case Terrain.WATER:
+            case TerrainType.WATER:
                 mr.material = MatOcean;
                 mf.mesh = MeshWater;
                 break;
             default:
-                Debug.LogError("Unknown terrain " + h.GetTerrain().ToString() + " sent to WorldDisplay");
+                Debug.LogError("Unknown terrain " + h.GetTerrainType().ToString() + " sent to WorldDisplay");
                 break;
         }
     }

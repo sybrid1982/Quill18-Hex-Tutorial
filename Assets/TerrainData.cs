@@ -13,16 +13,18 @@ using UnityEngine;
 /* This may also be a better place to put things like the height limits and moisture limits
  * to determine what kind of terrain a hex will have */
 
+public enum TerrainType
+{
+    GRASS,
+    MOUNTAIN,
+    ARID_HILLS,
+    GRASSY_HILLS,
+    DESERT,
+    WATER
+}
+
 public class TerrainData {
-    public enum TerrainType
-    {
-        GRASS,
-        MOUNTAIN,
-        ARID_HILLS,
-        GRASSY_HILLS,
-        DESERT,
-        WATER
-    }
+
 
     TerrainType terrainType;
     int movementCost;
@@ -30,7 +32,7 @@ public class TerrainData {
     int foodPerTile;
     int buildPerTile;
 
-    //Create TerrainData
+    //Create TerrainData - There'll be one of these objects for each type in the enum
     public TerrainData (TerrainType ttype, int mc, int cpt, int fpt, int bpt)
     {
         terrainType = ttype;
@@ -59,5 +61,10 @@ public class TerrainData {
     public int GetBuildPerHex()
     {
         return buildPerTile;
+    }
+
+    public TerrainType GetTerrainType()
+    {
+        return terrainType;
     }
 }

@@ -25,6 +25,7 @@ public class HexMap : ScriptableObject {
 
     private Hex[,] hexes;
     private List<Hex> walkableHexes;
+    private Dictionary<TerrainType, TerrainData> terrainTypeMap;
     
     public HexGraph hexGraph;
 
@@ -41,6 +42,7 @@ public class HexMap : ScriptableObject {
     public void StartPressed()
     {
         walkableHexes = new List<Hex>();
+        terrainTypeMap = new Dictionary<TerrainType, TerrainData>();
         GenerateMap();
     }
 
@@ -190,7 +192,7 @@ public class HexMap : ScriptableObject {
             {
                 if (h == null)
                     Debug.LogWarning("Null neighbor, something is borked");
-                else if (h.GetTerrain() == Terrain.MOUNTAIN || h.GetTerrain() == Terrain.WATER)
+                else if (h.GetTerrainType() == TerrainType.MOUNTAIN || h.GetTerrainType() == TerrainType.WATER)
                 {
                     impassibleTiles++;
                 }
@@ -218,25 +220,25 @@ public class HexMap : ScriptableObject {
     protected void SetTerrainForHex(Hex hex)
     {
         if (hex.Elevation >= HeightMountain)
-            hex.SetTerrain(Terrain.MOUNTAIN);
+            hex.SetTerrain(terrainTypeMap[TerrainType.MOUNTAIN]);
         else if (hex.Elevation >= HeightHill)
         {
             walkableHexes.Add(hex);
             if (hex.Moisture >= MoisturePlains)
-                hex.SetTerrain(Terrain.GRASSY_HILLS);
+                hex.SetTerrain(terrainTypeMap[TerrainType.GRASSY_HILLS]);
             else
-                hex.SetTerrain(Terrain.ARID_HILLS);
+                hex.SetTerrain(terrainTypeMap[TerrainType.ARID_HILLS]);
         }
         else if (hex.Elevation >= HeightFlat)
         {
             walkableHexes.Add(hex);
             if (hex.Moisture >= MoisturePlains)
-                hex.SetTerrain(Terrain.GRASS);
+                hex.SetTerrain(terrainTypeMap[TerrainType.GRASS]);
             else
-                hex.SetTerrain(Terrain.DESERT);
+                hex.SetTerrain(terrainTypeMap[TerrainType.DESERT]);
         }
         else
-            hex.SetTerrain(Terrain.WATER);
+            hex.SetTerrain(terrainTypeMap[TerrainType.WATER]);
     }
 
     protected void CreateTerrainForHexes()
@@ -250,5 +252,34 @@ public class HexMap : ScriptableObject {
                 SetTerrainForHex(h);
             }
         }
+    }
+
+    void PrototypeTerrainDataForTerrainType(TerrainType ttype, int movementCost, int cpt, int fpt, int bpt)
+    {
+        if (terrainTypeMap.ContainsKey(ttype))
+        {
+            Debug.LogError("Overwriting TerrainType " + ttype + " with new data!");
+        } else
+        {
+            TerrainData newData = new TerrainData(ttype, movementCost, cpt, fpt, bpt);
+            terrainTypeMap.Add(ttype, newData);
+        }
+    }
+
+    void PrototypeTerrainData()
+    {
+        int hillMovementCost = 2;
+        int normalMovementCost = 1;
+        int impassibleMovememntCost = 0;
+
+        //Set up Arid Hills to cost 2 movement to go over, give 1 coin and 2 production and 0 food.
+        PrototypeTerrainDataForTerrainType(TerrainType.ARID_HILLS, hillMovementCost, 1, 0, 2);
+
+        //Do the other five terrain types
+        PrototypeTerrainDataForTerrainType(TerrainType.DESERT, normalMovementCost, 1, 0, 1);
+        PrototypeTerrainDataForTerrainType(TerrainType.GRASS, normalMovementCost, 1, 2, 1);
+        PrototypeTerrainDataForTerrainType(TerrainType.GRASSY_HILLS, hillMovementCost, 1, 2, 2);
+        PrototypeTerrainDataForTerrainType(TerrainType.MOUNTAIN, impassibleMovememntCost, 1, 0, 3);
+        PrototypeTerrainDataForTerrainType(TerrainType.WATER, impassibleMovememntCost, 1, 1, 0);
     }
 }
