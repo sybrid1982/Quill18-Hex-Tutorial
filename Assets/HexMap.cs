@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-//TODO:  Hexmap currently handles both data and the display of that data
-//DEFINITELY NEED TO CHANGE THAT
-//If HexMap just handled knowing about the map stuff, then could have a 
-//HexMapDisplay object whose job it was to display hexes.  For instance, when
-//Passed a player, the HexMapDisplay could set all the visuals to black EXCEPT
-//The ones which the player can see or has seen at some point
+/*HexMap handles the creation of the map, telling hexes what kind of hex they are when they're created,
+ * telling other classes what hex is at a position, holding the pathfinding map (for now, that may move to players)
+ * knowing what hexes are walkable, and generally being the go-to object for knowing about hexes.
+ * WorldDisplay however creates the GameObjects that actually have meshes and textures and materials that link to
+ * this data */
 public class HexMap : ScriptableObject {
 
     [SerializeField]
