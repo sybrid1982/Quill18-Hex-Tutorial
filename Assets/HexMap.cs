@@ -238,4 +238,17 @@ public class HexMap : ScriptableObject {
         else
             hex.SetTerrain(Terrain.WATER);
     }
+
+    protected void CreateTerrainForHexes()
+    {
+        //Done setting the numbers so generate the terrain
+        for (int column = 0; column < NumColumns(); column++)
+        {
+            for (int row = 0; column < NumRows(); column++)
+            {
+                Hex h = GetHexAt(row, column);
+                SetTerrainForHex(h);
+            }
+        }
+    }
 }
