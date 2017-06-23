@@ -9,10 +9,9 @@ public class HexGraph {
     {
         nodes = new Dictionary<Hex, Path_Node<Hex>>();
 
-        //loop through all the hexes of the world
-        //create a node for each hex
-        //no nodes for unwalkable hexes
-        //TODO: Implement existence of non-walkable hexes
+        /*loop through all the hexes of the world
+        create a node for each hex
+        no nodes for unwalkable hexes*/
 
         CreateNodes(hexMap);
 

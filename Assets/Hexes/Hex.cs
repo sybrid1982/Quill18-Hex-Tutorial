@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 
 //Hex class defines the grid position, world space position, size
@@ -23,7 +24,8 @@ public enum Terrain
 {
     GRASS,
     MOUNTAIN,
-    HILLS,
+    ARID_HILLS,
+    GRASSY_HILLS,
     DESERT,
     WATER
 }
@@ -62,6 +64,8 @@ public class Hex {
 
     private Feature feature;
 
+    HashSet<Pawn> pawns;
+
     public int MovementCost
     {
         get
@@ -73,7 +77,8 @@ public class Hex {
                 case Terrain.GRASS:
                     mc = 1;
                     break;
-                case Terrain.HILLS:
+                case Terrain.ARID_HILLS:
+                case Terrain.GRASSY_HILLS:
                     mc = 2;
                     break;
                 case Terrain.MOUNTAIN:
@@ -232,5 +237,19 @@ public class Hex {
         return Mathf.Max(dQ,
                         Mathf.Abs(a.R - b.R),
                         Mathf.Abs(a.S - b.S));
+    }
+
+    public void AddPawn(Pawn pawn)
+    {
+        if (pawns == null)
+            pawns = new HashSet<Pawn>();
+
+        pawns.Add(pawn);
+    }
+    
+    public void RemovePawn(Pawn pawn)
+    {
+        if (pawns != null)
+            pawns.Remove(pawn);
     }
 }

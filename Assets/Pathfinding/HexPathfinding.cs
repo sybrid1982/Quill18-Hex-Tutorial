@@ -16,10 +16,10 @@ public class HexPath {
             hexMap.hexGraph = new HexGraph(hexMap);
         }
 
-        //Declare the closed and open sets
-        //ClosedSet tracks all the tiles that have been evaluated
-        //OpenSet tracks all the tiles we've encountered while pathfinding that we
-        //haven't yet evaluated
+        /*Declare the closed and open sets
+        ClosedSet tracks all the tiles that have been evaluated
+        OpenSet tracks all the tiles we've encountered while pathfinding that we
+        haven't yet evaluated*/
         Dictionary<Hex, Path_Node<Hex>> nodes = hexMap.hexGraph.nodes;
 
         List<Path_Node<Hex>> closedSet = new List<Path_Node<Hex>>(); ;
