@@ -100,41 +100,39 @@ public class HexMap : ScriptableObject {
 
     void GenerateNeighbors(Hex h)
     {
-        //When a new hex is created there are three easy places to check for neighbors
-        //To the left of the hex, the bottom-left of the hex, and bottom-right
-        //neighbor to the left
-        Vector2[] potentialNeighborCoords = {   new Vector2 (h.Q - 1, h.R + 1),     //upper left
-                                                new Vector2 (h.Q - 1, h.R),         //left
-                                                new Vector2 (h.Q, h.R - 1)          //lower left
-                                                };    
-        for (int i = 0; i < 3; i++)
-        {
-            GenerateNeighbor(h, potentialNeighborCoords[i], i+2);
-        }
+        GenerateNeighbor(h, GetNeighborCoordinates(Direction.LEFT, h), (int)Direction.LEFT);
+        GenerateNeighbor(h, GetNeighborCoordinates(Direction.UPPER_LEFT, h), (int)Direction.UPPER_LEFT);
+        GenerateNeighbor(h, GetNeighborCoordinates(Direction.LOWER_LEFT, h), (int)Direction.LOWER_LEFT);
         //HOWEVER, if this is the last tile in a row, there are two
         //other neighbors to consider to wrap the map
-        if(h.Q == numColumns - 1)
+        if (h.Q == numColumns - 1)
         {
-            GenerateWrapNeighbors(h);
+            GenerateNeighbor(h, GetNeighborCoordinates(Direction.RIGHT, h), (int)Direction.RIGHT);
+            GenerateNeighbor(h, GetNeighborCoordinates(Direction.LOWER_RIGHT, h), (int)Direction.LOWER_RIGHT);
         }
     }
 
-    private void GenerateWrapNeighbors(Hex h)
+    Vector2 GetNeighborCoordinates(Direction direction, Hex h)
     {
-        Hex rightH = GetHexAt(0, h.R);
-        if (rightH != null)
-        {
-            h.SetNeighbor(rightH, Direction.RIGHT);
-            rightH.SetNeighbor(h, Direction.LEFT);
-        }
-        Hex lowerRightH = GetHexAt(0, h.R - 1);
-        if(lowerRightH !=null)
-        {
-            h.SetNeighbor(lowerRightH, Direction.LOWER_RIGHT);
-            lowerRightH.SetNeighbor(h, Direction.UPPER_LEFT);
+        switch (direction) {
+            case Direction.LEFT:
+                return new Vector2(h.Q - 1, h.R);
+            case Direction.UPPER_LEFT:
+                return new Vector2(h.Q - 1, h.R + 1);
+            case Direction.LOWER_LEFT:
+                return new Vector2(h.Q, h.R - 1);
+            case Direction.RIGHT:
+                return new Vector2(h.Q + 1, h.R);
+            case Direction.LOWER_RIGHT:
+                return new Vector2(h.Q + 1, h.R - 1);
+            case Direction.UPPER_RIGHT:
+                return new Vector2(h.Q, h.R + 1);
+            default:
+                Debug.LogError("Invalid direction passed to GetNeighborCoordinates in HexMap");
+                return new Vector2(h.Q, h.R);
+
         }
     }
-
 
     //Returns the hex at coordinates Q, R
     //If Q,R is out of the map bounds, returns null
@@ -255,11 +253,16 @@ public class HexMap : ScriptableObject {
         //Done setting the numbers so generate the terrain
         for (int column = 0; column < numColumns; column++)
         {
-            for (int row = 0; row < numRows; row++)
-            {
-                Hex h = GetHexAt(column, row);
-                SetTerrainForHex(h);
-            }
+            CreateTerrainForColumnOfHexes(column);
+        }
+    }
+
+    private void CreateTerrainForColumnOfHexes(int column)
+    {
+        for (int row = 0; row < numRows; row++)
+        {
+            Hex h = GetHexAt(column, row);
+            SetTerrainForHex(h);
         }
     }
 

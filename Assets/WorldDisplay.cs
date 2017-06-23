@@ -25,10 +25,15 @@ public class WorldDisplay : MonoBehaviour
         hexToHexGOMap = new Dictionary<Hex, GameObject>();
         for(int q = 0; q < hexMap.NumColumns(); q++)
         {
-            for (int r = 0; r < hexMap.NumRows(); r++)
-            {
-                GenerateHexGO(hexMap.GetHexAt(q, r));
-            }
+            GenerateHexGOsForColumn(hexMap, q);
+        }
+    }
+
+    private void GenerateHexGOsForColumn(HexMap hexMap, int q)
+    {
+        for (int r = 0; r < hexMap.NumRows(); r++)
+        {
+            GenerateHexGO(hexMap.GetHexAt(q, r));
         }
     }
 
