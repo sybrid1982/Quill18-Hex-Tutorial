@@ -268,9 +268,12 @@ public class HexMap : ScriptableObject {
 
     void PrototypeTerrainDataForTerrainType(TerrainType ttype, int movementCost, int cpt, int fpt, int bpt)
     {
-        Debug.Log("Prototyping called!");
         if (terrainTypeMap.ContainsKey(ttype))
         {
+            /* I want to know if this happens.  It shouldn't.  
+             * I'm not sure how else to put a 
+             * check on that besides logging a debug 
+             * statement for now */
             Debug.LogError("Overwriting TerrainType " + ttype + " with new data!");
         } else
         {

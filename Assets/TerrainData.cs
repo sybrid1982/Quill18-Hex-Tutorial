@@ -33,7 +33,11 @@ public class TerrainData {
     int buildPerTile;
 
     //Create TerrainData - There'll be one of these objects for each type in the enum
-    public TerrainData (TerrainType ttype, int mc, int cpt, int fpt, int bpt)
+    public TerrainData (TerrainType ttype, 
+                        int mc, 
+                        int cpt,
+                        int fpt,
+                        int bpt)
     {
         terrainType = ttype;
         movementCost = mc;

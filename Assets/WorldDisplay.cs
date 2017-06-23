@@ -5,6 +5,7 @@ using UnityEngine;
 public class WorldDisplay : MonoBehaviour
 {
     Dictionary<Hex, GameObject> hexToHexGOMap;
+    Dictionary<TerrainType, HexVisuals> terrainToVisualsMap;
 
     public GameObject hexPrefab;
 
@@ -22,6 +23,7 @@ public class WorldDisplay : MonoBehaviour
 
     public void Initialize(HexMap hexMap)
     {
+        CreateHexVisuals();
         hexToHexGOMap = new Dictionary<Hex, GameObject>();
         for(int q = 0; q < hexMap.NumColumns(); q++)
         {
@@ -89,36 +91,7 @@ public class WorldDisplay : MonoBehaviour
         MeshRenderer mr = hexGO.GetComponentInChildren<MeshRenderer>();
         MeshFilter mf = hexGO.GetComponentInChildren<MeshFilter>();
 
-        switch (h.GetTerrainType())
-        {
-            case TerrainType.MOUNTAIN:
-                mr.material = MatMountains;
-                mf.mesh = MeshMountain;
-                break;
-            case TerrainType.ARID_HILLS:
-                mr.material = MatDesert;
-                mf.mesh = MeshHill;
-                break;
-            case TerrainType.GRASSY_HILLS:
-                mr.material = MatGrasslands;
-                mf.mesh = MeshHill;
-                break;
-            case TerrainType.GRASS:
-                mr.material = MatGrasslands;
-                mf.mesh = MeshFlat;
-                break;
-            case TerrainType.DESERT:
-                mr.material = MatDesert;
-                mf.mesh = MeshFlat;
-                break;
-            case TerrainType.WATER:
-                mr.material = MatOcean;
-                mf.mesh = MeshWater;
-                break;
-            default:
-                Debug.LogError("Unknown terrain " + h.GetTerrainType().ToString() + " sent to WorldDisplay");
-                break;
-        }
+        SetVisualsForHex(h.GetTerrainType(), mr, mf);
     }
 
     public GameObject GetHexGOFromHex(Hex hex)
@@ -130,5 +103,58 @@ public class WorldDisplay : MonoBehaviour
             Debug.Log("Asked DisplayWorld for hex not in its dictionary");
             return null;
         }
+    }
+
+    void CreateHexVisuals()
+    {
+        /* To avoid needing the switch statement, we need
+         * to instead have a dictionary that links
+         * terraintypes to objects that store the visual
+         * information associated with those terrain types */
+
+        //Initialize map
+        terrainToVisualsMap = new Dictionary<TerrainType, HexVisuals>();
+
+        //Visuals for mountain
+        CreateHexVisual(TerrainType.MOUNTAIN, MeshMountain, MatMountains);
+        //Visuals for Arid Hills
+        CreateHexVisual(TerrainType.ARID_HILLS, MeshHill, MatDesert);
+        //Visuals for Grassy Hills
+        CreateHexVisual(TerrainType.GRASSY_HILLS, MeshHill, MatGrasslands);
+        //Visuals for Desert
+        CreateHexVisual(TerrainType.DESERT, MeshFlat, MatDesert);
+        //Visuals for Grasslands
+        CreateHexVisual(TerrainType.GRASS, MeshFlat, MatGrasslands);
+        //Visuals for Water
+        CreateHexVisual(TerrainType.WATER, MeshWater, MatOcean);
+    }
+
+    void CreateHexVisual(TerrainType ttype, Mesh mesh, Material material)
+    {
+        HexVisuals hexVisual = new HexVisuals(mesh, material);
+        terrainToVisualsMap.Add(ttype, hexVisual);
+    }
+
+    HexVisuals GetVisualsForTerrain(TerrainType ttype)
+    {
+        if (terrainToVisualsMap.ContainsKey(ttype))
+        {
+            return terrainToVisualsMap[ttype];
+        } else
+        {
+            /* We've asked for a terrain we didn't prototype
+             * Return a gray flat hex which should hopefully
+             * be visually obvious to be wrong */
+            HexVisuals error = new HexVisuals(MeshFlat, MatMountains);
+            return error;
+        }
+
+    }
+
+    void SetVisualsForHex(TerrainType ttype, MeshRenderer mr, MeshFilter mf)
+    {
+        HexVisuals terrainVisuals = GetVisualsForTerrain(ttype);
+        mr.material = terrainVisuals.GetMaterial();
+        mf.mesh = terrainVisuals.GetMesh();
     }
 }
