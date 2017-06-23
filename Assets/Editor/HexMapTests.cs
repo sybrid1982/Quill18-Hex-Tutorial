@@ -99,8 +99,8 @@ public class HexMapTests : IPrebuildSetup {
         Assert.AreNotEqual(null, neighbor);
     }
 
-    //The next six tests take a hex on the left edge of the map and check that it has neighbors
-    //The left neighbors to this hex are the right most hexes
+    /*The next six tests take a hex on the left edge of the map and check that it has neighbors
+    The left neighbors to this hex are the right most hexes*/
     [Test]
     [PrebuildSetup(typeof(HexMapTests))]
     public void AssertHexAtq0r5HasRightNeighbor()

@@ -18,22 +18,30 @@ public class GameManager : MonoBehaviour {
     int startingNumberOfPlayers;
 
 	// Use this for initialization
-	void Start () {
+	void Start ()
+    {
         selectedPawnComponent = null;
+        FindComponents();
+        startingNumberOfPlayers = 2;
+    }
+
+    /*This function is where all 'find object of type' calls that need to or can
+     * happen first should go */
+    private void FindComponents()
+    {
         selectedPawnDisplay = FindObjectOfType<UI_SelectedPawnDisplay>();
         uiPathDrawer = FindObjectOfType<UI_PathDrawer>();
-        startingNumberOfPlayers = 2;
-	}
-
-    public void StartPressed()
-    {
         hexMap = FindObjectOfType<HexMap>();
         worldDisplay = FindObjectOfType<WorldDisplay>();
         pawnKeeper = FindObjectOfType<PawnKeeper>();
-        CreatePlayers();
+    }
+
+    public void StartPressed()
+    {        
         hexMap.StartPressed();
         worldDisplay.Initialize(hexMap);
 
+        CreatePlayers();
         pawnKeeper.StartPawnkeeper();
         foreach (Player p in players)
         {
@@ -114,9 +122,10 @@ public class GameManager : MonoBehaviour {
         //step one, unparent the selectedPawnComponent from the tile it is currently on
         pawnTransform.SetParent(null);
         //step two, move the pawn to the new location
-        pawnTransform.position = hex.PositionFromCamera(Camera.main.transform.position, hexMap.NumRows(), hexMap.NumColumns());
+        pawnTransform.position = hex.PositionFromCamera(Camera.main.transform.position);
         //Step three, set the pawn's parent to the new tile
-        pawnTransform.SetParent(worldDisplay.GetHexGOFromHex(hex).transform);
+        Transform newHexTransform = worldDisplay.GetHexGOFromHex(hex).transform;
+        pawnTransform.SetParent(newHexTransform);
         //Step four, hey we moved a pawn, so let's go ahead and also change what tiles are visible
         worldDisplay.DisplayMapForPlayer(pawn.GetPlayer());
     }

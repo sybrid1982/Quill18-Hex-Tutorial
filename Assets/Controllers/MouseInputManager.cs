@@ -66,38 +66,53 @@ public class MouseInputManager : MonoBehaviour {
             RaycastHit hit;
             if (Physics.Raycast(Camera.main.ScreenPointToRay(mouseSpot), out hit))
             {
-                if (hit.collider.GetComponentInParent<PawnComponent>() != null)
-                {
-                    //Debug.Log("Clicked a pawn");
-                    PawnComponent pawnComponent = hit.collider.GetComponentInParent<PawnComponent>();
-                    gameManager.PawnClicked(pawnComponent);
-                    //Ok, so, plan:
-                    //While the mouse is down, after clicking on a pawn (with movement?), check to see if it is over a (new) tile
-                    //if it is over a new tile, pathfind from the pawn to that new tile
-                    //then draw the path
-                    //if the mouse is released while over a tile and dragging a pawn, then start moving along the path
-                    //if a key (escape for now) is pressed to abort the drag, then cancel the drag without starting the move
-                    lastHexDraggedOver = hit.collider.GetComponentInParent<HexComponent>().hex;
-                    //note that we clicked on a pawn
-                    mouseDownOnPawn = true;
-                }
-                else if (hit.collider.GetComponentInParent<HexComponent>() != null)
-                {
-                    HexComponent hexComponent = hit.collider.GetComponentInParent<HexComponent>();
-                    if(lastHexClicked == hexComponent.hex && timeSinceLastClick <= maxTimeAllowedToDoubleClick)
-                    {
-                        //handle double click behavior
-                        //Which should be moving the pawn to the clicked hex
-                    } else
-                    {
-                        gameManager.HexClicked(hexComponent.hex);
-                    }
-                    mouseDownOnPawn = false;
-                    lastHexClicked = hexComponent.hex;
-                }
+                EvaluateClick(hit);
             }
             timeSinceLastClick = 0.0f;
         }
+    }
+
+    private void EvaluateClick(RaycastHit hit)
+    {
+        if (hit.collider.GetComponentInParent<PawnComponent>() != null)
+        {
+            PawnClicked(hit);
+        }
+        else if (hit.collider.GetComponentInParent<HexComponent>() != null)
+        {
+            HexClicked(hit);
+        }
+    }
+
+    private void HexClicked(RaycastHit hit)
+    {
+        HexComponent hexComponent = hit.collider.GetComponentInParent<HexComponent>();
+        if (lastHexClicked == hexComponent.hex && timeSinceLastClick <= maxTimeAllowedToDoubleClick)
+        {
+            //handle double click behavior
+            //Which should be moving the pawn to the clicked hex
+        }
+        else
+        {
+            gameManager.HexClicked(hexComponent.hex);
+        }
+        mouseDownOnPawn = false;
+        lastHexClicked = hexComponent.hex;
+    }
+
+    private void PawnClicked(RaycastHit hit)
+    {
+        PawnComponent pawnComponent = hit.collider.GetComponentInParent<PawnComponent>();
+        gameManager.PawnClicked(pawnComponent);
+        //Ok, so, plan:
+        //While the mouse is down, after clicking on a pawn (with movement?), check to see if it is over a (new) tile
+        //if it is over a new tile, pathfind from the pawn to that new tile
+        //then draw the path
+        //if the mouse is released while over a tile and dragging a pawn, then start moving along the path
+        //if a key (escape for now) is pressed to abort the drag, then cancel the drag without starting the move
+        lastHexDraggedOver = hit.collider.GetComponentInParent<HexComponent>().hex;
+        //note that we clicked on a pawn
+        mouseDownOnPawn = true;
     }
 
     private void EvaluateLeftMouseDrag()

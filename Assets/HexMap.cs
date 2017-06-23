@@ -25,6 +25,7 @@ public class HexMap : ScriptableObject {
 
     private Hex[,] hexes;
     private List<Hex> walkableHexes;
+    private Dictionary<TerrainType, TerrainData> terrainTypeMap;
     
     public HexGraph hexGraph;
 
@@ -41,6 +42,7 @@ public class HexMap : ScriptableObject {
     public void StartPressed()
     {
         walkableHexes = new List<Hex>();
+        PrototypeTerrainData();
         GenerateMap();
     }
 
@@ -98,41 +100,39 @@ public class HexMap : ScriptableObject {
 
     void GenerateNeighbors(Hex h)
     {
-        //When a new hex is created there are three easy places to check for neighbors
-        //To the left of the hex, the bottom-left of the hex, and bottom-right
-        //neighbor to the left
-        Vector2[] potentialNeighborCoords = {   new Vector2 (h.Q - 1, h.R + 1),     //upper left
-                                                new Vector2 (h.Q - 1, h.R),         //left
-                                                new Vector2 (h.Q, h.R - 1)          //lower left
-                                                };    
-        for (int i = 0; i < 3; i++)
-        {
-            GenerateNeighbor(h, potentialNeighborCoords[i], i+2);
-        }
+        GenerateNeighbor(h, GetNeighborCoordinates(Direction.LEFT, h), (int)Direction.LEFT);
+        GenerateNeighbor(h, GetNeighborCoordinates(Direction.UPPER_LEFT, h), (int)Direction.UPPER_LEFT);
+        GenerateNeighbor(h, GetNeighborCoordinates(Direction.LOWER_LEFT, h), (int)Direction.LOWER_LEFT);
         //HOWEVER, if this is the last tile in a row, there are two
         //other neighbors to consider to wrap the map
-        if(h.Q == numColumns - 1)
+        if (h.Q == numColumns - 1)
         {
-            GenerateWrapNeighbors(h);
+            GenerateNeighbor(h, GetNeighborCoordinates(Direction.RIGHT, h), (int)Direction.RIGHT);
+            GenerateNeighbor(h, GetNeighborCoordinates(Direction.LOWER_RIGHT, h), (int)Direction.LOWER_RIGHT);
         }
     }
 
-    private void GenerateWrapNeighbors(Hex h)
+    Vector2 GetNeighborCoordinates(Direction direction, Hex h)
     {
-        Hex rightH = GetHexAt(0, h.R);
-        if (rightH != null)
-        {
-            h.SetNeighbor(rightH, Direction.RIGHT);
-            rightH.SetNeighbor(h, Direction.LEFT);
-        }
-        Hex lowerRightH = GetHexAt(0, h.R - 1);
-        if(lowerRightH !=null)
-        {
-            h.SetNeighbor(lowerRightH, Direction.LOWER_RIGHT);
-            lowerRightH.SetNeighbor(h, Direction.UPPER_LEFT);
+        switch (direction) {
+            case Direction.LEFT:
+                return new Vector2(h.Q - 1, h.R);
+            case Direction.UPPER_LEFT:
+                return new Vector2(h.Q - 1, h.R + 1);
+            case Direction.LOWER_LEFT:
+                return new Vector2(h.Q, h.R - 1);
+            case Direction.RIGHT:
+                return new Vector2(h.Q + 1, h.R);
+            case Direction.LOWER_RIGHT:
+                return new Vector2(h.Q + 1, h.R - 1);
+            case Direction.UPPER_RIGHT:
+                return new Vector2(h.Q, h.R + 1);
+            default:
+                Debug.LogError("Invalid direction passed to GetNeighborCoordinates in HexMap");
+                return new Vector2(h.Q, h.R);
+
         }
     }
-
 
     //Returns the hex at coordinates Q, R
     //If Q,R is out of the map bounds, returns null
@@ -166,6 +166,14 @@ public class HexMap : ScriptableObject {
 
     }
 
+    public Hex GetRandomHexFromHexMap()
+    {
+        int hexIndexQ = Random.Range(0, numColumns);
+        int hexIndexR = Random.Range(0, numRows);
+
+        return GetHexAt(hexIndexQ,hexIndexR);
+    }
+
     public Hex GetRandomWalkableHexFromHexMap()
     {
         int hexIndex = Random.Range(0, walkableHexes.Count);
@@ -190,7 +198,7 @@ public class HexMap : ScriptableObject {
             {
                 if (h == null)
                     Debug.LogWarning("Null neighbor, something is borked");
-                else if (h.GetTerrain() == Terrain.MOUNTAIN || h.GetTerrain() == Terrain.WATER)
+                else if (h.GetTerrainType() == TerrainType.MOUNTAIN || h.GetTerrainType() == TerrainType.WATER)
                 {
                     impassibleTiles++;
                 }
@@ -218,37 +226,79 @@ public class HexMap : ScriptableObject {
     protected void SetTerrainForHex(Hex hex)
     {
         if (hex.Elevation >= HeightMountain)
-            hex.SetTerrain(Terrain.MOUNTAIN);
+            hex.SetTerrain(terrainTypeMap[TerrainType.MOUNTAIN]);
         else if (hex.Elevation >= HeightHill)
         {
             walkableHexes.Add(hex);
             if (hex.Moisture >= MoisturePlains)
-                hex.SetTerrain(Terrain.GRASSY_HILLS);
+                hex.SetTerrain(terrainTypeMap[TerrainType.GRASSY_HILLS]);
             else
-                hex.SetTerrain(Terrain.ARID_HILLS);
+                hex.SetTerrain(terrainTypeMap[TerrainType.ARID_HILLS]);
         }
         else if (hex.Elevation >= HeightFlat)
         {
             walkableHexes.Add(hex);
             if (hex.Moisture >= MoisturePlains)
-                hex.SetTerrain(Terrain.GRASS);
+                hex.SetTerrain(terrainTypeMap[TerrainType.GRASS]);
             else
-                hex.SetTerrain(Terrain.DESERT);
+                hex.SetTerrain(terrainTypeMap[TerrainType.DESERT]);
         }
         else
-            hex.SetTerrain(Terrain.WATER);
+            hex.SetTerrain(terrainTypeMap[TerrainType.WATER]);
     }
 
     protected void CreateTerrainForHexes()
     {
+        Debug.Log("TerrainData setting called for hexes");
         //Done setting the numbers so generate the terrain
-        for (int column = 0; column < NumColumns(); column++)
+        for (int column = 0; column < numColumns; column++)
         {
-            for (int row = 0; column < NumRows(); column++)
-            {
-                Hex h = GetHexAt(row, column);
-                SetTerrainForHex(h);
-            }
+            CreateTerrainForColumnOfHexes(column);
         }
+    }
+
+    private void CreateTerrainForColumnOfHexes(int column)
+    {
+        for (int row = 0; row < numRows; row++)
+        {
+            Hex h = GetHexAt(column, row);
+            SetTerrainForHex(h);
+        }
+    }
+
+    void PrototypeTerrainDataForTerrainType(TerrainType ttype, int movementCost, int cpt, int fpt, int bpt)
+    {
+        if (terrainTypeMap.ContainsKey(ttype))
+        {
+            /* I want to know if this happens.  It shouldn't.  
+             * I'm not sure how else to put a 
+             * check on that besides logging a debug 
+             * statement for now */
+            Debug.LogError("Overwriting TerrainType " + ttype + " with new data!");
+        } else
+        {
+            TerrainData newData = new TerrainData(ttype, movementCost, cpt, fpt, bpt);
+            terrainTypeMap.Add(ttype, newData);
+        }
+    }
+
+    void PrototypeTerrainData()
+    {
+        int hillMovementCost = 2;
+        int normalMovementCost = 1;
+        int impassibleMovememntCost = 0;
+        
+        //Setup the terraintypemap
+        terrainTypeMap = new Dictionary<TerrainType, TerrainData>();
+
+        //Set up Arid Hills to cost 2 movement to go over, give 1 coin and 2 production and 0 food.
+        PrototypeTerrainDataForTerrainType(TerrainType.ARID_HILLS, hillMovementCost, 1, 0, 2);
+
+        //Do the other five terrain types
+        PrototypeTerrainDataForTerrainType(TerrainType.DESERT, normalMovementCost, 1, 0, 1);
+        PrototypeTerrainDataForTerrainType(TerrainType.GRASS, normalMovementCost, 1, 2, 1);
+        PrototypeTerrainDataForTerrainType(TerrainType.GRASSY_HILLS, hillMovementCost, 1, 2, 2);
+        PrototypeTerrainDataForTerrainType(TerrainType.MOUNTAIN, impassibleMovememntCost, 1, 0, 3);
+        PrototypeTerrainDataForTerrainType(TerrainType.WATER, impassibleMovememntCost, 1, 1, 0);
     }
 }

@@ -20,16 +20,6 @@ public enum Direction {
     LOWER_RIGHT
 }
 
-public enum Terrain
-{
-    GRASS,
-    MOUNTAIN,
-    ARID_HILLS,
-    GRASSY_HILLS,
-    DESERT,
-    WATER
-}
-
 public class Hex {
 //Constructor.  We don't need S because S can be derived from Q and R
     public Hex(HexMap hexMap, int q, int r)
@@ -52,7 +42,7 @@ public class Hex {
     static readonly float WIDTH_MULTIPLIER = Mathf.Sqrt(3) / 2;
 
     float radius = 1f;
-    Terrain terrain;
+    TerrainData terrainData;
 
     Hex[] neighbors;
     public readonly HexMap hexMap;
@@ -69,42 +59,7 @@ public class Hex {
     public int MovementCost
     {
         get
-        {
-            int mc = 0;
-            switch (terrain)
-            {
-                case Terrain.DESERT:
-                case Terrain.GRASS:
-                    mc = 1;
-                    break;
-                case Terrain.ARID_HILLS:
-                case Terrain.GRASSY_HILLS:
-                    mc = 2;
-                    break;
-                case Terrain.MOUNTAIN:
-                case Terrain.WATER:
-                    mc = 0;
-                    break;
-                default:
-                    Debug.Log("Unknown terrain type");
-                    break;
-            }
-            if(feature != null)
-            {
-                switch (feature.FeatureType)
-                {
-                    case FeatureTypes.FOREST:
-                        mc++;
-                        break;
-                }
-            }
-            return mc;
-        }
-
-        protected set
-        {
-            movementCost = value;
-        }
+            { return terrainData.GetMovementCost(); }
     }
 
     public float HexHeight()
@@ -216,14 +171,14 @@ public class Hex {
         return neighbors;
     }
 
-    public void SetTerrain(Terrain terrain)
+    public void SetTerrain(TerrainData terrain)
     {
-        this.terrain = terrain;
+        this.terrainData = terrain;
     }
 
-    public Terrain GetTerrain()
+    public TerrainType GetTerrainType()
     {
-        return terrain;
+        return terrainData.GetTerrainType();
     }
 
     public static float Distance(Hex a, Hex b)

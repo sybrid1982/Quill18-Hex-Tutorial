@@ -21,6 +21,8 @@ public class CameraMotionHandler : MonoBehaviour {
     float maxCameraUp;
     float maxCameraRight;
 
+    const float CAMERA_Z_ADJUST = -5;
+
     // Use this for initialization
     void Start () {
         oldPosition = newPosition = this.transform.position;
@@ -28,11 +30,8 @@ public class CameraMotionHandler : MonoBehaviour {
         maxCameraUp = (hexMap.NumRows() * 1.5f) - 5;
 	}
     
-
-	// Update is called once per frame
 	void Update () {
-
-        //Now the various move scripts can tell the camera to move
+        //Various move scripts can tell the camera to move
         MoveCamera();
         AdjustCameraAngle();
         //should be the last thing atm
@@ -44,11 +43,11 @@ public class CameraMotionHandler : MonoBehaviour {
         //TODO:  Move Camera to Hex
     }
 
-    public void MoveToPosition(Vector3 position)
+    public void MoveToPosition(Vector3 targetPosition)
     {
-        position.y = this.transform.position.y;
-        position.z += -5;
-        newPosition = position;
+        targetPosition.y = this.transform.position.y;
+        targetPosition.z += CAMERA_Z_ADJUST;
+        newPosition = targetPosition;
     }
 
     void CheckIfCameraMoved()
@@ -69,14 +68,20 @@ public class CameraMotionHandler : MonoBehaviour {
 
     public void SetMoveTargetPosition(int upDown, int leftRight)
     {
-        float newX = transform.position.x + (leftRight * Time.deltaTime);
-        float newZ = transform.position.z + (upDown * Time.deltaTime);
+        float newX, newZ;
+        GetNewXandNewZ(upDown, leftRight, out newX, out newZ);
 
         newZ = Mathf.Clamp(newZ, -10, maxCameraUp);
         //TODO:  if you get too far to the right, reset the camera's position to 0 on the x axis
 
         newPosition.x = newX;
         newPosition.z = newZ;
+    }
+
+    private void GetNewXandNewZ(int upDown, int leftRight, out float newX, out float newZ)
+    {
+        newX = transform.position.x + (leftRight * cameraMoveSpeed * Time.deltaTime);
+        newZ = transform.position.z + (upDown * cameraMoveSpeed * Time.deltaTime);
     }
 
     public void ZoomCamera(int direction)
@@ -90,10 +95,6 @@ public class CameraMotionHandler : MonoBehaviour {
 
     void AdjustCameraAngle()
     {
-        // Change camera angle
-        float lowZoom = maxCameraZoomIn + 3;
-        float highZoom = maxCameraZoomOut - 10;
-
         Camera.main.transform.rotation = Quaternion.Euler(
             Mathf.Lerp(30, 75, Camera.main.transform.position.y / maxCameraZoomOut),
             Camera.main.transform.rotation.eulerAngles.y,
